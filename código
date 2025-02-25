@@ -37,4 +37,173 @@
         
         Para começar, navegue pelo menu acima e escolha a opção desejada.  
     </h3>
-    
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Cancelar</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">| Início</a></li>
+            <li><a href="consultar_salas.html">| Consultar Salas</a></li>
+            <li><a href="reservar.html">| Fazer Reserva</a></li>
+            <li><a href="historico.html">| Minhas Reservas</a></li>
+            <li><a href="cancelar.html">| Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">| Entrar</a></li>
+            <li><a href="inicio.html">| Sair</a></li>
+            
+            
+        </ul>
+    </nav>
+    <h1>Cancelar</h1>
+    <p>Aqui você poderá cancelar suas reservas.</p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Consultar Salas</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">| Início</a></li>
+            <li><a href="consultar_salas.html">| Consultar Salas</a></li>
+            <li><a href="reservar.html">| Fazer Reserva</a></li>
+            <li><a href="historico.html">| Minhas Reservas</a></li>
+            <li><a href="cancelar.html">| Cancelar Reservas</a></li>
+            <li><a href="login.html">| Entrar</a></li>
+            <li><a href="inicio.html">| Sair</a></li>
+        </ul>
+    </nav>
+    <h1>Entre na sua conta</h1>
+    <p>Aqui o usuário poderá entrar com sua matrícula.</p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Reservar Salas</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">| Início</a></li>
+            <li><a href="consultar_salas.html">| Consultar Salas</a></li>
+            <li><a href="reservar.html">| Fazer Reserva</a></li>
+            <li><a href="historico.html">| Minhas Reservas</a></li>
+            <li><a href="cancelar.html">| Cancelar Reservas</a></li>
+            <li><a href="login.html">| Entrar</a></li>
+            <li><a href="inicio.html">| Sair</a></li>
+        </ul>
+    </nav>
+    <h1>Reserve sua sala!</h1>
+    <p>Aqui o usuário poderá indicar a sala que deseja reservar.</p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Histórico</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">| Início</a></li>
+            <li><a href="consultar_salas.html">| Consultar Salas</a></li>
+            <li><a href="reservar.html">| Fazer Reserva</a></li>
+            <li><a href="historico.html">| Minhas Reservas</a></li>
+            <li><a href="cancelar.html">| Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">| Entrar</a></li>
+            <li><a href="inicio.html">| Sair</a></li>
+            
+            
+        </ul>
+    </nav>
+    <h1>Histórico</h1>
+    <p>Aqui o usuário poderá visualizar o histórico de reservas.</p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Consultar Salas</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="inicio.html">| Início</a></li>
+            <li><a href="consultar_salas.html">| Consultar Salas</a></li>
+            <li><a href="reservar.html">| Fazer Reserva</a></li>
+            <li><a href="historico.html">| Minhas Reservas</a></li>
+            <li><a href="cancelar.html">| Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">| Entrar</a></li>
+            <li><a href="inicio.html">| Sair</a></li>
+            
+            
+        </ul>
+    </nav>
+    <h1>Consultar Salas</h1>
+    <p>Aqui você poderá visualizar a disponibilidade das salas para reserva.</p>
+</body>
+</html>
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+nav {
+    background-color: #004080;
+    padding: 10px;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+li {
+    margin-right: 20px;
+}
+a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+#intro {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    color: #333;
+    text-align: left;
+    margin: 20px;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
