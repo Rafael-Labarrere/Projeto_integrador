@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilo.css">
     <title>Página Inicial</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul class="menu">
-                <li><a href="inicio.html">Início</a></li>
-                <li><a href="consultar.html">Consultar Salas</a></li>
-                <li><a href="reservar.html">Fazer Reserva</a></li>
-                <li><a href="historico.html">Minhas Reservas</a></li>
-                <li><a href="cancelar.html">Cancelar Reservas</a></li>
-                <li class="login"><a href="login.html">Entrar</a></li>
-                <li><a href="inicio.html">Sair</a></li>
-            </ul>
-        </nav>
-    </header>
+    <nav>
+        <div class="logo">UniCEUB</div>
+        <ul class="menu">
+            <li><a href="inicio.html">Início</a></li>
+            <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            <li><a href="reservar.html">Fazer Reserva</a></li>
+            <li><a href="historico.html">Minhas Reservas</a></li>
+            <li><a href="cancelar.html">Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">Entrar</a></li>
+           
+        </ul>
+    </nav>
 
     <main>
         <section class="intro">
@@ -29,8 +29,31 @@
         </section>
 
         <section class="content">
-            <!-- Conteúdo específico para cada página -->
-            Histórico de salas reservadas pelo usuário
+            <h2>Histórico de Reservas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sala</th>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sala 101</td>
+                        <td>10/03/2025</td>
+                        <td>14:00-16:00</td>
+                        <td>Concluída</td>
+                    </tr>
+                    <tr>
+                        <td>Auditório</td>
+                        <td>12/03/2025</td>
+                        <td>08:00-10:00</td>
+                        <td>Concluída</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
     </main>
 
