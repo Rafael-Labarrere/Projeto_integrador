@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - UniCEUB</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="logo">UniCEUB</div>
+        <ul class="menu" id="menu-list">
+            <li><a href="inicio.html">Início</a></li>
+            <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            <li><a href="reservar.html">Fazer Reserva</a></li>
+        </ul>
+        <div class="user-menu" id="user-menu">
+            <button class="menu-btn" id="menu-btn">&#9776;</button>
+            <ul class="dropdown-menu" id="dropdown-menu">
+                <li><a href="perfil.html">Meu Perfil</a></li>
+                <li><a href="minhas_reservas.html">Minhas Reservas</a></li>
+                <li><a href="mensagens.html">Mensagens</a></li>
+                <li><a href="configuracoes.html">Configurações</a></li>
+                <li><a href="inicio.html" id="logout-link">Sair</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <section class="profile-container">
+            <h1>Meu Perfil</h1>
+            
+            <div class="profile-header">
+                <div class="avatar">
+                    <img src="https://via.placeholder.com/150" alt="Avatar" id="user-avatar">
+                    <button class="edit-avatar">Alterar Foto</button>
+                </div>
+                <div class="profile-info">
+                    <h2 id="user-name">Oswaldo Thales Assunção</h2>
+                    <p id="user-email">oswaldo.thales@sempreceub.com</p>
+                    <p id="user-id">Matrícula: 22309399</p>
+                    <p id="user-course">Curso: Ciência da Computação</p>
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <h3>Informações Pessoais</h3>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="phone">Telefone:</label>
+                        <input type="tel" id="phone" value="(61) 99999-9999">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthdate">Data de Nascimento:</label>
+                        <input type="date" id="birthdate" value="2000-01-15">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Alterar Senha:</label>
+                        <input type="password" id="password" placeholder="Nova senha">
+                    </div>
+                    
+                    <button type="submit" class="save-btn">Salvar Alterações</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>
