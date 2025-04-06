@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="logo">UniCEUB</div>
+        <ul class="menu">
+            <li><a href="inicio.html">Início</a></li>
+            <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            <li><a href="reservar.html">Fazer Reserva</a></li>
+            <li><a href="historico.html">Minhas Reservas</a></li>
+            <li><a href="cancelar.html">Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">Entrar</a></li>
+           
+        </ul>
+    </nav>
+
+    <main>
+        <section class="intro">
+            <h1>UniCEUB</h1>
+            <h3>Bem-vindo ao Sistema de Reserva de Salas do UniCEUB!</h3>
+            <p>Este sistema foi desenvolvido para facilitar a reserva de salas dentro da universidade...</p>
+        </section>
+
+        <section class="content">
+            <h2>Histórico de Reservas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reservante</th>
+                        <th>UA</th>
+                        <th>Sala</th>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dadosBrutos = localStorage.getItem('reservaDados');
+            const tbody = document.querySelector('table tbody');
+    
+            try {
+                const reservas = JSON.parse(dadosBrutos);
+    
+                if (Array.isArray(reservas) && reservas.length > 0) {
+                    reservas.forEach(reserva => {
+                        const novaLinha = document.createElement('tr');
+                        novaLinha.innerHTML = `
+                            <td>${reserva.nomeReservante}</td>
+                            <td>${reserva.ua}</td>
+                            <td>${formatarTipoEBloco(reserva.tipo, reserva.bloco)}</td>
+                            <td>${formatarData(reserva.data)}</td>
+                            <td>${reserva.horario}</td>
+                            <td><span style="color: orange;">Pendente</span></td>
+                        `;
+                        tbody.appendChild(novaLinha);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6">Nenhuma reserva encontrada.</td></tr>`;
+                }
+            } catch (e) {
+                console.error("Erro ao carregar reservas:", e);
+                tbody.innerHTML = `<tr><td colspan="6">Erro ao carregar reservas.</td></tr>`;
+            }
+        });
+    
+        function formatarData(data) {
+            if (!data) return '';
+            const [ano, mes, dia] = data.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+    
+        function formatarTipoEBloco(tipo, bloco) {
+            let tipoFormatado = tipo.replace('_', ' ').replace(/^\w/, c => c.toUpperCase());
+            return `${tipoFormatado} - Bloco ${bloco}`;
+        }
+    </script>
+    
+
+</body>
+</html>
