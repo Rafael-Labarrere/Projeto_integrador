@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - UniCEUB</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <nav>
+        <div class="logo">UniCEUB</div>
+        <ul class="menu" id="menu-list">
+            <li><a href="inicio.html">Início</a></li>
+            <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            <li><a href="reservar.html">Fazer Reserva</a></li>
+        </ul>
+        <div class="user-menu" id="user-menu">
+            <button class="menu-btn" id="menu-btn">&#9776;</button>
+            <ul class="dropdown-menu" id="dropdown-menu">
+                <li><a href="perfil.html">Meu Perfil</a></li>
+                <li><a href="minhas_reservas.html">Minhas Reservas</a></li>
+                <li><a href="mensagens.html">Mensagens</a></li>
+                <li><a href="configuracoes.html">Configurações</a></li>
+                <li><a href="inicio.html" id="logout-link">Sair</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <section class="settings-container">
+            <h1>Configurações</h1>
+            
+            <div class="settings-tabs">
+                <button class="tab-btn active" onclick="showSettingsTab('notifications')">Notificações</button>
+                <button class="tab-btn" onclick="showSettingsTab('privacy')">Privacidade</button>
+                <button class="tab-btn" onclick="showSettingsTab('account')">Conta</button>
+            </div>
+            
+            <div class="settings-content" id="notifications">
+                <h2>Preferências de Notificação</h2>
+                
+                <form id="notifications-form">
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" name="email-notifications" checked>
+                            Receber notificações por e-mail
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" name="reservation-confirmations" checked>
+                            Confirmações de reserva
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" name="reservation-reminders" checked>
+                            Lembretes de reserva (24h antes)
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" name="system-updates">
+                            Atualizações do sistema
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="save-btn">Salvar Configurações</button>
+                </form>
+            </div>
+            
+            <div class="settings-content hidden" id="privacy">
+                <h2>Configurações de Privacidade</h2>
+                
+                <form id="privacy-form">
+                    <div class="setting-item">
+                        <label>
+                            <input type="radio" name="profile-visibility" value="public" checked>
+                            Perfil público (visível para outros usuários)
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>
+                            <input type="radio" name="profile-visibility" value="private">
+                            Perfil privado (apenas administradores podem ver)
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" name="show-reservations" checked>
+                            Mostrar minhas reservas públicas no calendário
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="save-btn">Salvar Configurações</button>
+                </form>
+            </div>
+            
+            <div class="settings-content hidden" id="account">
+                <h2>Configurações da Conta</h2>
+                
+                <div class="danger-zone">
+                    <h3>Zona de Perigo</h3>
+                    <button class="delete-account-btn" onclick="confirmAccountDeletion()">
+                        Excluir Minha Conta Permanentemente
+                    </button>
+                    <p class="warning">Esta ação não pode ser desfeita. Todos os seus dados serão removidos permanentemente.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>c
+        <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
+    </footer>
+</body>
+</html>
