@@ -1,87 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilo.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="estilo.css" />
     <script defer src="reserva.js"></script>
     <title>Página Inicial</title>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul class="menu">
-                <li><a href="inicio.html">Início</a></li>
-                <li><a href="consultar_salas.html">Consultar Salas</a></li>
-                <li><a href="reservar.html">Fazer Reserva</a></li>
-                <li><a href="historico.html">Minhas Reservas</a></li>
-                <li><a href="cancelar.html">Cancelar Reservas</a></li>
-                <li class="login"><a href="login.html">Entrar</a></li>
-                <li><a href="inicio.html">Sair</a></li>
-            </ul>
-        </nav>
-    </header>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">UniCEUB</div>
+      <ul class="menu">
+        <li><a href="inicio.html">Início</a></li>
+        <li><a href="consultar_salas.html">Consultar Salas</a></li>
+        <li><a href="reservar.html">Fazer Reserva</a></li>
+        <li><a href="historico.html">Minhas Reservas</a></li>
+        <li><a href="cancelar.html">Cancelar Reservas</a></li>
+        <li class="login"><a href="login.html">Entrar</a></li>
+      </ul>
+    </nav>
+    <main
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      ">
+      <section class="filtros-container-2" style="width: 80%">
+        <div class="filtro-box">
+          <label for="nome-reservante">Nome do Reservante:</label>
+          <input type="name" id="nome-reservante" onchange="filtrarSalas()" />
+        </div>
 
-    <main style="display: flex; justify-content: center; align-items: center; width: 100%;">
-        <section class="filtros-container-2" style="width: 80%;">
+        <div class="filtro-box">
+          <label for="ua">UA:</label>
+          <input type="number" id="ua" onchange="filtrarSalas()" />
+        </div>
 
-            <div class="filtro-box">
-                <label for="nome-reservante">Nome do Reservante:</label>
-                <input type="name" id="nome-reservante" onchange="filtrarSalas()">
-            </div>
+        <div class="filtro-box">
+          <label for="bloco">Bloco:</label>
+          <select id="bloco" onchange="filtrarSalas()">
+            <option value="todos">Todos</option>
+            <option value="bloco1">Bloco 1</option>
+            <option value="bloco2">Bloco 2</option>
+            <option value="bloco3">Bloco 3</option>
+            <option value="bloco3">Bloco 4</option>
+            <option value="bloco3">Bloco 5</option>
+            <option value="bloco3">Bloco 6</option>
+            <option value="bloco3">Bloco 7</option>
+            <option value="bloco3">Bloco 8</option>
+            <option value="bloco3">Bloco 9</option>
+            <option value="bloco3">Bloco 10</option>
+            <option value="bloco3">Bloco 11</option>
+            <option value="bloco3">Bloco 12</option>
+          </select>
+        </div>
 
-            <div class="filtro-box">
-                <label for="ua">UA:</label>
-                <input type="number" id="ua" onchange="filtrarSalas()">
-            </div>
+        <div class="filtro-box">
+          <label for="tipo">Tipo de Sala:</label>
+          <select id="tipo">
+            <option value="todos">Todos</option>
+            <option value="laboratorio">Laboratório</option>
+            <option value="sala_aula">Sala de Aula</option>
+            <option value="auditorio">Auditório</option>
+            <option value="sala_reuniao">Sala de Reunião</option>
+          </select>
+        </div>
 
-            <div class="filtro-box">
-                <label for="bloco">Bloco:</label>
-                <select id="bloco" onchange="filtrarSalas()">
-                    <option value="todos">Todos</option>
-                    <option value="bloco1">Bloco 1</option>
-                    <option value="bloco2">Bloco 2</option>
-                    <option value="bloco3">Bloco 3</option>
-                    <option value="bloco3">Bloco 4</option>
-                    <option value="bloco3">Bloco 5</option>
-                    <option value="bloco3">Bloco 6</option>
-                    <option value="bloco3">Bloco 7</option>
-                    <option value="bloco3">Bloco 8</option>
-                    <option value="bloco3">Bloco 9</option>
-                    <option value="bloco3">Bloco 10</option>
-                    <option value="bloco3">Bloco 11</option>
-                    <option value="bloco3">Bloco 12</option>
-                </select>
-            </div>
-        
-            <div class="filtro-box">
-                <label for="tipo">Tipo de Sala:</label>
-                <select id="tipo">
-                    <option value="todos">Todos</option>
-                    <option value="laboratorio">Laboratório</option>
-                    <option value="sala_aula">Sala de Aula</option>
-                    <option value="auditorio">Auditório</option>
-                    <option value="sala_reuniao">Sala de Reunião</option>
-                </select>
-            </div>
-        
-            <div class="filtro-box">
-                <label for="data">Data:</label>
-                <input type="date" id="data">
-            </div>
-        
-            <div class="filtro-box">
-                <label for="horario">Horário:</label>
-                <input type="time" id="horario">
-            </div>
+        <div class="filtro-box">
+          <label for="data">Data:</label>
+          <input type="date" id="data" />
+        </div>
 
-            <button class="reservar-btn" type="button" onclick="reserva()">Reservar</button>
-        </section>
-        
+        <div class="filtro-box">
+          <label for="horario">Horário:</label>
+          <input type="time" id="horario" />
+        </div>
+
+        <button class="reservar-btn" type="button" onclick="reserva()">
+          Reservar
+        </button>
+      </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
+      <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
     </footer>
-</body>
+  </body>
 </html>
