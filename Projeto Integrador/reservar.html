@@ -3,83 +3,187 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="estilo.css" />
-    <script defer src="reserva.js"></script>
-    <title>Página Inicial</title>
+    <title>Reserva de Salas - UniCEUB</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f4f8;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      nav {
+        background-color: #003366;
+        color: white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      nav .logo {
+        font-weight: bold;
+        font-size: 20px;
+      }
+
+      nav ul.menu {
+        list-style: none;
+        display: flex;
+        gap: 25px;
+      }
+
+      nav ul.menu li a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      main.centralizar-tela {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      section.compact-form {
+        background-color: #ffffff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        width: 100%;
+      }
+
+      .form-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .form-row.full {
+        justify-content: center;
+      }
+
+      .filtro-box {
+        flex: 1 1 45%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .filtro-box label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      .filtro-box input,
+      .filtro-box select {
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        height: 38px;
+      }
+
+      button.reservar-btn {
+        background-color: #003366;
+        color: white;
+        padding: 10px 25px;
+        font-weight: bold;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button.reservar-btn:hover {
+        background-color: #001f4d;
+      }
+
+      footer {
+        text-align: center;
+        background-color: #003366;
+        color: white;
+        padding: 15px;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <nav>
       <div class="logo">UniCEUB</div>
       <ul class="menu">
-        <li><a href="inicio.html">Início</a></li>
-        <li><a href="consultar_salas.html">Consultar Salas</a></li>
-        <li><a href="reservar.html">Fazer Reserva</a></li>
-        <li><a href="historico.html">Minhas Reservas</a></li>
-        <li><a href="cancelar.html">Cancelar Reservas</a></li>
-        <li class="login"><a href="login.html">Entrar</a></li>
+        <li><a href="#">Início</a></li>
+        <li><a href="#">Consultar Salas</a></li>
+        <li><a href="#">Fazer Reserva</a></li>
+        <li><a href="#">Minhas Reservas</a></li>
+        <li><a href="#">Cancelar Reservas</a></li>
+        <li><a href="#">Entrar</a></li>
       </ul>
     </nav>
-    <main
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-      ">
-      <section class="filtros-container-2" style="width: 80%">
-        <div class="filtro-box">
-          <label for="nome-reservante">Nome do Reservante:</label>
-          <input type="name" id="nome-reservante" onchange="filtrarSalas()" />
+
+    <main class="centralizar-tela">
+      <section class="compact-form">
+        <div class="form-row">
+          <div class="filtro-box">
+            <label for="nome-reservante">Nome do Reservante:</label>
+            <input type="text" id="nome-reservante" />
+          </div>
+          <div class="filtro-box">
+            <label for="ua">UA:</label>
+            <input type="number" id="ua" />
+          </div>
         </div>
 
-        <div class="filtro-box">
-          <label for="ua">UA:</label>
-          <input type="number" id="ua" onchange="filtrarSalas()" />
+        <div class="form-row">
+          <div class="filtro-box">
+            <label for="bloco">Bloco:</label>
+            <select id="bloco">
+              <option value="todos">Todos</option>
+              <option value="bloco1">Bloco 1</option>
+              <option value="bloco2">Bloco 2</option>
+              <option value="bloco3">Bloco 3</option>
+              <option value="bloco4">Bloco 4</option>
+              <option value="bloco5">Bloco 5</option>
+            </select>
+          </div>
+          <div class="filtro-box">
+            <label for="tipo">Tipo de Sala:</label>
+            <select id="tipo">
+              <option value="todos">Todos</option>
+              <option value="laboratorio">Laboratório</option>
+              <option value="sala_aula">Sala de Aula</option>
+              <option value="auditorio">Auditório</option>
+              <option value="sala_reuniao">Sala de Reunião</option>
+            </select>
+          </div>
         </div>
 
-        <div class="filtro-box">
-          <label for="bloco">Bloco:</label>
-          <select id="bloco" onchange="filtrarSalas()">
-            <option value="todos">Todos</option>
-            <option value="bloco1">Bloco 1</option>
-            <option value="bloco2">Bloco 2</option>
-            <option value="bloco3">Bloco 3</option>
-            <option value="bloco3">Bloco 4</option>
-            <option value="bloco3">Bloco 5</option>
-            <option value="bloco3">Bloco 6</option>
-            <option value="bloco3">Bloco 7</option>
-            <option value="bloco3">Bloco 8</option>
-            <option value="bloco3">Bloco 9</option>
-            <option value="bloco3">Bloco 10</option>
-            <option value="bloco3">Bloco 11</option>
-            <option value="bloco3">Bloco 12</option>
-          </select>
+        <div class="form-row">
+          <div class="filtro-box">
+            <label for="data">Data:</label>
+            <input type="date" id="data" />
+          </div>
+          <div class="filtro-box">
+            <label for="horario">Horário:</label>
+            <input type="time" id="horario" />
+          </div>
         </div>
 
-        <div class="filtro-box">
-          <label for="tipo">Tipo de Sala:</label>
-          <select id="tipo">
-            <option value="todos">Todos</option>
-            <option value="laboratorio">Laboratório</option>
-            <option value="sala_aula">Sala de Aula</option>
-            <option value="auditorio">Auditório</option>
-            <option value="sala_reuniao">Sala de Reunião</option>
-          </select>
+        <div class="form-row full">
+          <button class="reservar-btn" type="button">Reservar</button>
         </div>
-
-        <div class="filtro-box">
-          <label for="data">Data:</label>
-          <input type="date" id="data" />
-        </div>
-
-        <div class="filtro-box">
-          <label for="horario">Horário:</label>
-          <input type="time" id="horario" />
-        </div>
-
-        <button class="reservar-btn" type="button" onclick="reserva()">
-          Reservar
-        </button>
       </section>
     </main>
 
