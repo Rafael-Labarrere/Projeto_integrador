@@ -3,180 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Consultar Salas</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f4f8;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      nav {
-        background-color: #003366;
-        color: white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      nav .logo {
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-      nav ul.menu {
-        list-style: none;
-        display: flex;
-        gap: 25px;
-      }
-
-      nav ul.menu li a {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-      }
-
-      main {
-        flex: 1;
-        padding: 40px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 40px;
-      }
-
-      .filtros-container {
-        background-color: #ffffff;
-        padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        max-width: 900px;
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: space-between;
-      }
-
-      .filtro-box {
-        flex: 1 1 45%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .filtro-box label {
-        font-weight: 600;
-        margin-bottom: 6px;
-        font-size: 14px;
-      }
-
-      .filtro-box input,
-      .filtro-box select {
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        height: 38px;
-      }
-
-      .filtrar-btn {
-        margin-top: 20px;
-        background-color: #003366;
-        color: white;
-        padding: 10px 30px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        align-self: center;
-      }
-
-      .filtrar-btn:hover {
-        background-color: #001f4d;
-      }
-
-      .salas-container {
-        max-width: 1000px;
-        width: 100%;
-      }
-
-      .salas-container h2 {
-        margin-bottom: 20px;
-        font-size: 24px;
-        color: #003366;
-        text-align: center;
-      }
-
-      .sala-card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .sala-card h3 {
-        margin-bottom: 10px;
-      }
-
-      .status {
-        font-weight: bold;
-        margin-top: 10px;
-      }
-
-      .disponivel {
-        color: green;
-      }
-
-      .ocupado {
-        color: red;
-      }
-
-      .reservar-btn {
-        margin-top: 10px;
-        padding: 8px 20px;
-        background-color: #003366;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.3s ease;
-      }
-
-      .reservar-btn:hover {
-        background-color: #001f4d;
-      }
-
-      .reservar-btn.disabled {
-        background-color: #aaa;
-        cursor: not-allowed;
-      }
-
-      footer {
-        text-align: center;
-        background-color: #003366;
-        color: white;
-        padding: 15px;
-        font-size: 14px;
-      }
-    </style>
-    <script defer>
-      function filtrarSalas() {
-        // Implementar sua lógica JS aqui
-        alert('Filtros aplicados (exemplo)');
-      }
-    </script>
+    <title>Consultar Salas - UniCEUB</title>
+    <link rel="stylesheet" href="estilo.css">
   </head>
   <body>
     <nav>
@@ -193,38 +21,44 @@
 
     <main>
       <section class="filtros-container">
-        <div class="filtro-box">
-          <label for="bloco">Bloco:</label>
-          <select id="bloco">
-            <option value="todos">Todos</option>
-            <option value="bloco1">Bloco 1</option>
-            <option value="bloco2">Bloco 2</option>
-            <option value="bloco3">Bloco 3</option>
-          </select>
+        <div class="form-row">
+          <div class="filtro-box">
+            <label for="bloco">Bloco:</label>
+            <select id="bloco">
+              <option value="todos">Todos</option>
+              <option value="bloco1">Bloco 1</option>
+              <option value="bloco2">Bloco 2</option>
+              <option value="bloco3">Bloco 3</option>
+            </select>
+          </div>
+
+          <div class="filtro-box">
+            <label for="tipo">Tipo de Sala:</label>
+            <select id="tipo">
+              <option value="todos">Todos</option>
+              <option value="laboratorio">Laboratório</option>
+              <option value="sala_aula">Sala de Aula</option>
+              <option value="auditorio">Auditório</option>
+              <option value="sala_reuniao">Sala de Reunião</option>
+            </select>
+          </div>
         </div>
 
-        <div class="filtro-box">
-          <label for="tipo">Tipo de Sala:</label>
-          <select id="tipo">
-            <option value="todos">Todos</option>
-            <option value="laboratorio">Laboratório</option>
-            <option value="sala_aula">Sala de Aula</option>
-            <option value="auditorio">Auditório</option>
-            <option value="sala_reuniao">Sala de Reunião</option>
-          </select>
+        <div class="form-row">
+          <div class="filtro-box">
+            <label for="data">Data:</label>
+            <input type="date" id="data" />
+          </div>
+
+          <div class="filtro-box">
+            <label for="horario">Horário:</label>
+            <input type="time" id="horario" />
+          </div>
         </div>
 
-        <div class="filtro-box">
-          <label for="data">Data:</label>
-          <input type="date" id="data" />
+        <div class="form-row full">
+          <button class="filtrar-btn" onclick="filtrarSalas()">Filtrar</button>
         </div>
-
-        <div class="filtro-box">
-          <label for="horario">Horário:</label>
-          <input type="time" id="horario" />
-        </div>
-
-        <button class="filtrar-btn" onclick="filtrarSalas()">Filtrar</button>
       </section>
 
       <section class="salas-container">
@@ -272,46 +106,41 @@
       <p>&copy; 2025 UniCEUB - Todos os direitos reservados.</p>
     </footer>
 
-
     <script>
-
       function filtrarSalas() {
-  const filtroBloco = document.getElementById('bloco').value;
-  const filtroTipo = document.getElementById('tipo').value;
-  const filtroData = document.getElementById('data').value;
-  const filtroHorario = document.getElementById('horario').value;
+        const filtroBloco = document.getElementById('bloco').value;
+        const filtroTipo = document.getElementById('tipo').value;
+        const filtroData = document.getElementById('data').value;
+        const filtroHorario = document.getElementById('horario').value;
 
-  const cards = document.querySelectorAll('.sala-card');
+        const cards = document.querySelectorAll('.sala-card');
 
-  cards.forEach((card) => {
-    const bloco = card.getAttribute('data-bloco');
-    const tipo = card.getAttribute('data-tipo');
-    const disponivel = card.getAttribute('data-disponivel') === 'true';
+        cards.forEach((card) => {
+          const bloco = card.getAttribute('data-bloco');
+          const tipo = card.getAttribute('data-tipo');
+          const disponivel = card.getAttribute('data-disponivel') === 'true';
 
-    let exibir = true;
+          let exibir = true;
 
-    // Filtro de bloco
-    if (filtroBloco !== 'todos' && bloco !== filtroBloco) {
-      exibir = false;
-    }
+          // Filtro de bloco
+          if (filtroBloco !== 'todos' && bloco !== filtroBloco) {
+            exibir = false;
+          }
 
-    // Filtro de tipo de sala
-    if (filtroTipo !== 'todos' && tipo !== filtroTipo) {
-      exibir = false;
-    }
+          // Filtro de tipo de sala
+          if (filtroTipo !== 'todos' && tipo !== filtroTipo) {
+            exibir = false;
+          }
 
-    // Filtro de data e horário (opcional, exige mais lógica realista, mas aqui consideramos apenas se estão preenchidos e sala disponível)
-    if ((filtroData || filtroHorario) && !disponivel) {
-      exibir = false;
-    }
+          // Filtro de data e horário
+          if ((filtroData || filtroHorario) && !disponivel) {
+            exibir = false;
+          }
 
-    // Mostrar ou ocultar
-    card.style.display = exibir ? 'block' : 'none';
-  });
-}
-
+          // Mostrar ou ocultar
+          card.style.display = exibir ? 'block' : 'none';
+        });
+      }
     </script>
-
-
   </body>
 </html>

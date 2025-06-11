@@ -1,46 +1,256 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
+    <title>Login - Sistema de Reserva de Salas</title>
     <link rel="stylesheet" href="estilo.css">
-    <script defer src="script.js"></script>
 </head>
 <body>
-    <nav>
-        <div class="logo">UniCEUB</div>
-        <ul class="menu">
-            <li><a href="inicio.html">Início</a></li>
-            <li><a href="consultar_salas.html">Consultar Salas</a></li>
-            <li><a href="reservar.html">Fazer Reserva</a></li>
-            <li><a href="historico.html">Minhas Reservas</a></li>
-            <li><a href="cancelar.html">Cancelar Reservas</a></li>
-            <li class="login"><a href="login.html">Entrar</a></li>
+    <div class="container">
+        <header>
+            <h1>Sistema de Reserva de Salas</h1>
+        </header>
+
+        <main>
+            <section id="login-section">
+                <div class="auth-container">
+                    <!-- Área de Login -->
+                    <div class="auth-box" id="login-box">
+                        <h2>Entrar</h2>
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label for="login-email">Email:</label>
+                                <input type="email" id="login-email" required placeholder="seu@email.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-senha">Senha:</label>
+                                <input type="password" id="login-senha" required placeholder="Sua senha">
+                            </div>
+                            
+                            <button type="submit">Entrar</button>
+                        </form>
+                        
+                        <p class="auth-switch">
+                            Não tem uma conta? 
+                            <a href="#" onclick="mostrarRegistro()">Registre-se aqui</a>
+                        </p>
+                    </div>
+
+                    <!-- Área de Registro -->
+                    <div class="auth-box" id="registro-box" style="display: none;">
+                        <h2>Criar Conta</h2>
+                        <form id="registro-form">
+                            <div class="form-group">
+                                <label for="registro-nome">Nome Completo:</label>
+                                <input type="text" id="registro-nome" required placeholder="Seu nome completo">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registro-email">Email:</label>
+                                <input type="email" id="registro-email" required placeholder="seu@email.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registro-senha">Senha:</label>
+                                <input type="password" id="registro-senha" required placeholder="Mínimo 6 caracteres">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registro-confirma-senha">Confirmar Senha:</label>
+                                <input type="password" id="registro-confirma-senha" required placeholder="Confirme sua senha">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registro-tipo">Tipo de Usuário:</label>
+                                <select id="registro-tipo" required>
+                                    <option value="">Selecione</option>
+                                    <option value="professor">Professor</option>
+                                    <option value="funcionario">Funcionário</option>
+                                    <option value="aluno">Aluno</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit">Criar Conta</button>
+                        </form>
+                        
+                        <p class="auth-switch">
+                            Já tem uma conta? 
+                            <a href="#" onclick="mostrarLogin()">Entre aqui</a>
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Alternar entre login e registro
+        function mostrarRegistro() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('registro-box').style.display = 'block';
+        }
+
+        function mostrarLogin() {
+            document.getElementById('registro-box').style.display = 'none';
+            document.getElementById('login-box').style.display = 'block';
+        }
+
+        // Processar login
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-        </ul>
-    </nav>
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            
+            // Verificar se usuário existe
+            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+            const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+            
+            if (usuario) {
+                // Salvar usuário logado
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+                alert('Login realizado com sucesso!');
+                window.location.href = 'loggedin.html';
+            } else {
+                alert('Email ou senha incorretos!');
+            }
+        });
 
-    <main>
-        <section class="login-container">
-            <h2>Login</h2>
-            <form id="loginForm">
-                <label for="email">E-mail Institucional: </label>
-                <input type="email" id="email" required>
-                <br>
-                <label for="password">Senha: </label>
-                <input type="password" id="password" required>
-                <br>
-                <button type="submit"><a href="loggedin.html">Entrar</a></button>
-            </form>
-            <p id="error-message" style="color: red;"></p>
-        </section>
-    </main>
+        // Processar registro
+        document.getElementById('registro-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('registro-nome').value;
+            const email = document.getElementById('registro-email').value;
+            const senha = document.getElementById('registro-senha').value;
+            const confirmaSenha = document.getElementById('registro-confirma-senha').value;
+            const tipo = document.getElementById('registro-tipo').value;
+            
+            // Validações
+            if (senha !== confirmaSenha) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }
+            
+            // Verificar se email já existe
+            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+            if (usuarios.find(u => u.email === email)) {
+                alert('Este email já está cadastrado!');
+                return;
+            }
+            
+            // Criar novo usuário
+            const novoUsuario = {
+                id: Date.now(),
+                nome: nome,
+                email: email,
+                senha: senha,
+                tipo: tipo,
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
+            };
+            
+            usuarios.push(novoUsuario);
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            
+            alert('Conta criada com sucesso! Agora você pode fazer login.');
+            mostrarLogin();
+            
+            // Limpar formulário
+            document.getElementById('registro-form').reset();
+        });
+    </script>
 
-    <footer>
-        <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
-    </footer>
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            padding: 20px;
+        }
 
-    <script src="auth.js"></script>
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background: #0056b3;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-switch a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </body>
 </html>

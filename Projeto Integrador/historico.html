@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
+    <title>Minhas Reservas - UniCEUB</title>
     <link rel="stylesheet" href="estilo.css">
-    <script defer src="script.js"></script>
 </head>
 <body>
     <nav>
@@ -17,34 +16,38 @@
             <li><a href="historico.html">Minhas Reservas</a></li>
             <li><a href="cancelar.html">Cancelar Reservas</a></li>
             <li class="login"><a href="login.html">Entrar</a></li>
-           
         </ul>
     </nav>
 
     <main>
         <section class="intro">
-            <h1>UniCEUB</h1>
-            <h3>Bem-vindo ao Sistema de Reserva de Salas do UniCEUB!</h3>
-            <p>Este sistema foi desenvolvido para facilitar a reserva de salas dentro da universidade...</p>
+            <h1>Minhas Reservas</h1>
+            <p>Visualize e gerencie todas as suas reservas de salas</p>
         </section>
 
         <section class="content">
-            <h2>Histórico de Reservas</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reservante</th>
-                        <th>UA</th>
-                        <th>Sala</th>
-                        <th>Data</th>
-                        <th>Horário</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                   
-                </tbody>
-            </table>
+            <div id="loading" style="text-align: center; padding: 20px; display: none;">
+                <p>Carregando reservas...</p>
+            </div>
+            
+            <div id="reservas-content">
+                <table id="tabela-reservas">
+                    <thead>
+                        <tr>
+                            <th>Reservante</th>
+                            <th>UA</th>
+                            <th>Sala</th>
+                            <th>Data</th>
+                            <th>Horário</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Reservas serão inseridas aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 
@@ -54,46 +57,156 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const dadosBrutos = localStorage.getItem('reservaDados');
-            const tbody = document.querySelector('table tbody');
-    
+            carregarReservas();
+        });
+
+        function carregarReservas() {
+            const loading = document.getElementById('loading');
+            const tbody = document.querySelector('#tabela-reservas tbody');
+            
+            // Mostra loading
+            loading.style.display = 'block';
+            
             try {
-                const reservas = JSON.parse(dadosBrutos);
-    
-                if (Array.isArray(reservas) && reservas.length > 0) {
-                    reservas.forEach(reserva => {
+                const dadosBrutos = localStorage.getItem('reservaDados');
+                let reservas = [];
+                
+                if (dadosBrutos) {
+                    reservas = JSON.parse(dadosBrutos);
+                    
+                    // Garante que é um array
+                    if (!Array.isArray(reservas)) {
+                        reservas = [];
+                    }
+                }
+                
+                // Esconde loading
+                loading.style.display = 'none';
+                
+                // Limpa a tabela
+                tbody.innerHTML = '';
+                
+                if (reservas.length > 0) {
+                    // Ordena as reservas por data (mais recentes primeiro)
+                    reservas.sort((a, b) => {
+                        const dataA = new Date(a.dataReserva || a.data);
+                        const dataB = new Date(b.dataReserva || b.data);
+                        return dataB - dataA;
+                    });
+                    
+                    reservas.forEach((reserva, index) => {
                         const novaLinha = document.createElement('tr');
+                        
+                        // Determina a cor do status
+                        const statusColor = getStatusColor(reserva.status || 'Pendente');
+                        
                         novaLinha.innerHTML = `
                             <td>${reserva.nomeReservante}</td>
                             <td>${reserva.ua}</td>
                             <td>${formatarTipoEBloco(reserva.tipo, reserva.bloco)}</td>
                             <td>${formatarData(reserva.data)}</td>
-                            <td>${reserva.horario}</td>
-                            <td><span style="color: orange;">Pendente</span></td>
+                            <td>${formatarHorario(reserva.horario)}</td>
+                            <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
+                            <td>
+                                <button onclick="cancelarReserva(${index})" 
+                                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    Cancelar
+                                </button>
+                            </td>
                         `;
                         tbody.appendChild(novaLinha);
                     });
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="6">Nenhuma reserva encontrada.</td></tr>`;
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                                <p>Nenhuma reserva encontrada.</p>
+                                <p style="margin-top: 10px;">
+                                    <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
+                                        Fazer uma reserva →
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+                    `;
                 }
             } catch (e) {
                 console.error("Erro ao carregar reservas:", e);
-                tbody.innerHTML = `<tr><td colspan="6">Erro ao carregar reservas.</td></tr>`;
+                loading.style.display = 'none';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+                            Erro ao carregar reservas. Tente recarregar a página.
+                        </td>
+                    </tr>
+                `;
             }
-        });
-    
+        }
+
         function formatarData(data) {
             if (!data) return '';
-            const [ano, mes, dia] = data.split('-');
-            return `${dia}/${mes}/${ano}`;
+            try {
+                const [ano, mes, dia] = data.split('-');
+                return `${dia}/${mes}/${ano}`;
+            } catch (e) {
+                return data;
+            }
         }
-    
+
+        function formatarHorario(horario) {
+            if (!horario) return '';
+            try {
+                const [hora, minuto] = horario.split(':');
+                return `${hora}:${minuto}`;
+            } catch (e) {
+                return horario;
+            }
+        }
+
         function formatarTipoEBloco(tipo, bloco) {
-            let tipoFormatado = tipo.replace('_', ' ').replace(/^\w/, c => c.toUpperCase());
-            return `${tipoFormatado} - Bloco ${bloco}`;
+            if (!tipo || !bloco) return 'N/A';
+            
+            let tipoFormatado = tipo.replace('_', ' ');
+            tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+            
+            const blocoFormatado = bloco.replace('bloco', 'Bloco ');
+            
+            return `${tipoFormatado} - ${blocoFormatado}`;
+        }
+
+        function getStatusColor(status) {
+            switch (status.toLowerCase()) {
+                case 'confirmado':
+                case 'aprovado':
+                    return '#28a745';
+                case 'cancelado':
+                case 'rejeitado':
+                    return '#dc3545';
+                case 'pendente':
+                default:
+                    return '#ffc107';
+            }
+        }
+
+        function cancelarReserva(index) {
+            if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
+                try {
+                    const dadosBrutos = localStorage.getItem('reservaDados');
+                    let reservas = JSON.parse(dadosBrutos) || [];
+                    
+                    if (index >= 0 && index < reservas.length) {
+                        reservas.splice(index, 1);
+                        localStorage.setItem('reservaDados', JSON.stringify(reservas));
+                        
+                        alert('Reserva cancelada com sucesso!');
+                        carregarReservas(); // Recarrega a tabela
+                    }
+                } catch (e) {
+                    console.error("Erro ao cancelar reserva:", e);
+                    alert('Erro ao cancelar reserva. Tente novamente.');
+                }
+            }
         }
     </script>
-    
-
 </body>
 </html>

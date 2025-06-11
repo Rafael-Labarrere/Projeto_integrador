@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Loggado</title>
+    <title>User Logado - UniCEUB</title>
     <link rel="stylesheet" href="estilo.css">
     <script defer src="script.js"></script>
 </head>
 <body>
-
     <nav>
         <div class="logo">UniCEUB</div>
-
-        <ul class="menu" id="menu-list">
-            <li id="login-item"><a href="login.html">Entrar</a></li>
+        <ul class="menu">
+            <li><a href="inicio.html">Início</a></li>
+            <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            <li><a href="reservar.html">Fazer Reserva</a></li>
+            <li><a href="historico.html">Minhas Reservas</a></li>
+            <li><a href="cancelar.html">Cancelar Reservas</a></li>
+            <li class="login"><a href="login.html">Entrar</a></li>
         </ul>
 
-        <!-- Menu Hambúrguer para Usuário Logado -->
-        <div class="user-menu" id="user-menu">
+        <!-- Menu Hambúrguer para Usuário Logado (oculto por padrão) -->
+        <div class="user-menu" id="user-menu" style="display: none;">
             <button class="menu-btn" id="menu-btn">&#9776;</button>
             <ul class="dropdown-menu" id="dropdown-menu">
                 <li><a href="perfil.html">Meu Perfil</a></li>
@@ -29,20 +32,82 @@
         </div>
     </nav>
 
-    <!-- Introdução -->
     <header>
         <h1>Bem-vindo ao Sistema de Reserva de Salas do UniCEUB!</h1>
-        <p>
-            Aqui você pode gerenciar a reserva de salas de forma rápida e eficiente.  
-            Consulte a disponibilidade, faça reservas e cancele quando necessário.  
-            Para começar, utilize o menu acima.  
-        </p>
+        <p>Gerencie suas reservas de forma rápida e eficiente.</p>
     </header>
 
-    <!-- Rodapé -->
+    <main>
+        <section class="content">
+            <div class="intro">
+                <h3>Área do Usuário</h3>
+                <p>Aqui você pode gerenciar a reserva de salas de forma rápida e eficiente.</p>
+                <p>Consulte a disponibilidade, faça reservas e cancele quando necessário.</p>
+                <p>Para começar, utilize o menu acima.</p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <h4>Acesso Rápido:</h4>
+                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                    <a href="consultar_salas.html" style="background-color: #003366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
+                        Consultar Salas
+                    </a>
+                    <a href="reservar.html" style="background-color: #004080; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
+                        Fazer Reserva
+                    </a>
+                    <a href="historico.html" style="background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
+                        Minhas Reservas
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
     <footer>
         <p>&copy; 2025 UniCEUB - Todos os direitos reservados.</p>
     </footer>
 
+    <script>
+        // Script para alternar entre menu normal e menu de usuário logado
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenu = document.getElementById('user-menu');
+            const menuBtn = document.getElementById('menu-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            
+            // Função para mostrar menu de usuário logado (pode ser chamada quando usuário faz login)
+            function showUserMenu() {
+                const normalMenu = document.querySelector('.menu');
+                const loginItem = document.querySelector('.login');
+                
+                if (normalMenu && loginItem) {
+                    loginItem.style.display = 'none';
+                    userMenu.style.display = 'block';
+                }
+            }
+            
+            // Toggle do menu dropdown
+            if (menuBtn && dropdownMenu) {
+                menuBtn.addEventListener('click', function() {
+                    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                });
+                
+                // Fechar menu ao clicar fora
+                document.addEventListener('click', function(event) {
+                    if (!userMenu.contains(event.target)) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Logout
+            const logoutLink = document.getElementById('logout-link');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function() {
+                    // Aqui você pode adicionar lógica de logout
+                    alert('Logout realizado com sucesso!');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
