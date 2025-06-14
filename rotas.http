@@ -1,0 +1,29 @@
+POST http://localhost:4321/salas
+Content-Type: application/json
+Accept-Language: pt 
+
+{
+    "numero": 1,
+    "descricao": "esta é a sala 01",
+    "capacidade": 50
+}
+
+###
+
+GET  http://localhost:4321/salas
+
+###
+
+PUT http://localhost:4321/salas/ee849b49-e803-4fad-b063-b42ddce32b46
+Content-Type: application/json
+Accept-Language: pt 
+
+{
+    "numero": 2,
+    "descricao": "esta é a sala 02",
+    "capacidade": 60
+}
+
+###
+
+DELETE http://localhost:4321/salas/805afedf-901f-49dd-9297-146bb4cd4a94
