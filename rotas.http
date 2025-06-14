@@ -1,4 +1,4 @@
-POST http://localhost:4321/salas
+POST https://projeto-integrador-znob.onrender.com/salas
 Content-Type: application/json
 Accept-Language: pt 
 
@@ -10,11 +10,11 @@ Accept-Language: pt
 
 ###
 
-GET  http://localhost:4321/salas
+GET  https://projeto-integrador-znob.onrender.com/salas
 
 ###
 
-PUT http://localhost:4321/salas/ee849b49-e803-4fad-b063-b42ddce32b46
+PUT https://projeto-integrador-znob.onrender.com/salas/9081977e-a164-4744-bf8e-b226e4cad15b
 Content-Type: application/json
 Accept-Language: pt 
 
@@ -26,4 +26,4 @@ Accept-Language: pt
 
 ###
 
-DELETE http://localhost:4321/salas/805afedf-901f-49dd-9297-146bb4cd4a94
+DELETE https://projeto-integrador-znob.onrender.com/salas/9081977e-a164-4744-bf8e-b226e4cad15b
