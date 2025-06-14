@@ -53,5 +53,5 @@ server.delete('/salas/:id' , async (request, reply) => {
 })
 
 server.listen({
-    port: 4321,
+    port: process.env.PORT || 4321,
 })
