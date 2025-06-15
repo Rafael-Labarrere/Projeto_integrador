@@ -1,29 +1,47 @@
+import { fastify } from "fastify";
+import cors from '@fastify/cors';
+import fastifyFormbody from '@fastify/formbody';
+import { DatabasePostgres } from "./database-postgress.js";
+import crypto from 'crypto';
+import { sql } from "./db.js"; // se você usa esse método no login e reservas
 
-import {fastify} from "fastify"
-//import { Memoriabanco } from "./banco-memoria.js"
-import { DatabasePostgres } from "./database-postgress.js"
-//const database = new Memoriabanco()
-const server = fastify()
+const server = fastify();
+const database = new DatabasePostgres();
 
-const database = new DatabasePostgres()
+// Plugins (ordem correta e depois que server foi criado)
+await server.register(cors, {
+  origin: '*'
+});
 
+await server.register(fastifyFormbody);
 
-//post para usuarios
+// Esse parser ajuda o Fastify a entender o JSON (pode ser opcional se `formbody` já estiver funcionando)
+server.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body, done) {
+  try {
+    const json = JSON.parse(body);
+    done(null, json);
+  } catch (err) {
+    done(err, undefined);
+  }
+});
+
+// POST: Criar usuário
 server.post('/usuarios', async (request, reply) => {
-  const { nome, email, senha, tipo } = request.body; 
+  const { nome, email, senha, tipo } = request.body;
 
   const id = crypto.randomUUID();
-  const senhaCriptografada = senha; // depois você pode usar bcrypt aqui
+  const senhaCriptografada = senha; // Use bcrypt futuramente
 
   try {
     await database.createUsuario({ id, nome, email, senha: senhaCriptografada, tipo });
     return reply.status(201).send({ message: 'Usuário criado com sucesso' });
   } catch (error) {
+    console.error(error);
     return reply.status(400).send({ error: 'Erro ao cadastrar usuário' });
   }
 });
 
-//post login
+// POST: Login
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
 
@@ -39,7 +57,7 @@ server.post('/login', async (request, reply) => {
   return reply.send({ message: 'Login bem-sucedido', usuarioId: usuario.id });
 });
 
-//post para reservas
+// POST: Criar reserva
 server.post('/reservas', async (request, reply) => {
   const { usuario_id, sala_id, data, horario } = request.body;
   const id = crypto.randomUUID();
@@ -52,7 +70,7 @@ server.post('/reservas', async (request, reply) => {
   }
 });
 
-//consulta todas as reservas
+// GET: Reservas por usuário
 server.get('/usuarios/:id/reservas', async (request, reply) => {
   const usuarioId = request.params.id;
 
@@ -66,9 +84,8 @@ server.get('/usuarios/:id/reservas', async (request, reply) => {
   return reply.send(reservas);
 });
 
-
-
+// Iniciar servidor
 server.listen({
-    host: '0.0.0.0',
-    port: process.env.PORT || 4321,
-})
+  host: '0.0.0.0',
+  port: process.env.PORT || 4321,
+});

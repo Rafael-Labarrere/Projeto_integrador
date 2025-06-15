@@ -1,3 +1,4 @@
+/*
 import { randomUUID } from "node:crypto"
 
 export class Memoriabanco{
@@ -29,3 +30,4 @@ export class Memoriabanco{
         this.#salas.delete(id)
     }
 }
+    */
