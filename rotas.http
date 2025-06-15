@@ -1,4 +1,4 @@
-POST https://projeto-integrador-znob.onrender.com/salas
+POST https://projeto-integrador-znob.onrender.com/usuarios
 Content-Type: application/json
 Accept-Language: pt 
 
@@ -10,11 +10,11 @@ Accept-Language: pt
 
 ###
 
-GET  https://projeto-integrador-znob.onrender.com/salas
+GET  https://projeto-integrador-znob.onrender.com/usuarios
 
 ###
 
-PUT https://projeto-integrador-znob.onrender.com/salas/9081977e-a164-4744-bf8e-b226e4cad15b
+PUT https://projeto-integrador-znob.onrender.com/usuarios/9081977e-a164-4744-bf8e-b226e4cad15b
 Content-Type: application/json
 Accept-Language: pt 
 
@@ -26,4 +26,4 @@ Accept-Language: pt
 
 ###
 
-DELETE https://projeto-integrador-znob.onrender.com/salas/9081977e-a164-4744-bf8e-b226e4cad15b
+DELETE https://projeto-integrador-znob.onrender.com/usuarios/9081977e-a164-4744-bf8e-b226e4cad15b

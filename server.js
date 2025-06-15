@@ -7,50 +7,66 @@ const server = fastify()
 
 const database = new DatabasePostgres()
 
-server.post('/salas' , async (request, reply) => {
-    const {numero, descricao, capacidade} = request.body
 
-    console.log(request.body)
+//post para usuarios
+server.post('/usuarios', async (request, reply) => {
+  const { nome, email, senha, tipo } = request.body; 
 
+  const id = crypto.randomUUID();
+  const senhaCriptografada = senha; // depois você pode usar bcrypt aqui
 
-    await database.create({
-        numero: numero,
-        descricao: descricao,
-        capacidade: capacidade,
-    })
+  try {
+    await database.createUsuario({ id, nome, email, senha: senhaCriptografada, tipo });
+    return reply.status(201).send({ message: 'Usuário criado com sucesso' });
+  } catch (error) {
+    return reply.status(400).send({ error: 'Erro ao cadastrar usuário' });
+  }
+});
 
-    return reply.status(201).send()
-})
+//post login
+server.post('/login', async (request, reply) => {
+  const { email, senha } = request.body;
 
-server.get('/salas', async (request, reply) => {
-    const search = request.query.search;
+  const result = await sql`
+    SELECT * FROM usuarios WHERE email = ${email} AND senha = ${senha}
+  `;
 
-    const salas = await database.list();
+  if (result.length === 0) {
+    return reply.status(401).send({ error: 'Credenciais inválidas' });
+  }
 
-    return salas; // or reply.send(salas)
+  const usuario = result[0];
+  return reply.send({ message: 'Login bem-sucedido', usuarioId: usuario.id });
+});
+
+//post para reservas
+server.post('/reservas', async (request, reply) => {
+  const { usuario_id, sala_id, data, horario } = request.body;
+  const id = crypto.randomUUID();
+
+  try {
+    await database.createReserva({ id, usuario_id, sala_id, data, horario });
+    return reply.status(201).send({ message: 'Reserva criada com sucesso' });
+  } catch (error) {
+    return reply.status(400).send({ error: 'Erro ao criar reserva' });
+  }
+});
+
+//consulta todas as reservas
+server.get('/usuarios/:id/reservas', async (request, reply) => {
+  const usuarioId = request.params.id;
+
+  const reservas = await sql`
+    SELECT r.*, s.numero AS sala_numero
+    FROM reservas r
+    JOIN salas s ON r.sala_id = s.id
+    WHERE r.usuario_id = ${usuarioId}
+  `;
+
+  return reply.send(reservas);
 });
 
 
-server.put('/salas/:id' , async (request, reply) => {
-  const salaId = request.params.id
-  const {numero, descricao, capacidade} = request.body
-
-  await database.update(salaId, {
-    numero: numero,
-    descricao: descricao,
-    capacidade: capacidade,
-  })
-
-  return reply.status(204).send()
-})
-
-server.delete('/salas/:id' , async (request, reply) => {
-    const salaId = request.params.id
-    
-    await database.delete(salaId)
-
-    return reply.status(204).send()    
-})
 
 server.listen({
     host: '0.0.0.0',

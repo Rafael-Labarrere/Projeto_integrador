@@ -85,87 +85,96 @@
         </main>
     </div>
 
-    <script>
-        // Alternar entre login e registro
-        function mostrarRegistro() {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('registro-box').style.display = 'block';
-        }
+<script>
+    const API_URL = "https://projeto-integrador-znob.onrender.com";
 
-        function mostrarLogin() {
-            document.getElementById('registro-box').style.display = 'none';
-            document.getElementById('login-box').style.display = 'block';
-        }
+    function mostrarRegistro() {
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('registro-box').style.display = 'block';
+    }
 
-        // Processar login
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-            
-            // Verificar se usuário existe
-            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            const usuario = usuarios.find(u => u.email === email && u.senha === senha);
-            
-            if (usuario) {
-                // Salvar usuário logado
-                localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    function mostrarLogin() {
+        document.getElementById('registro-box').style.display = 'none';
+        document.getElementById('login-box').style.display = 'block';
+    }
+
+    // LOGIN
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('login-email').value;
+        const senha = document.getElementById('login-senha').value;
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, senha })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('usuarioLogado', JSON.stringify(data));
                 alert('Login realizado com sucesso!');
                 window.location.href = 'loggedin.html';
             } else {
-                alert('Email ou senha incorretos!');
+                alert(data.error || 'Erro ao fazer login');
             }
-        });
+        } catch (error) {
+            alert('Erro de conexão com o servidor');
+            console.error(error);
+        }
+    });
 
-        // Processar registro
-        document.getElementById('registro-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const nome = document.getElementById('registro-nome').value;
-            const email = document.getElementById('registro-email').value;
-            const senha = document.getElementById('registro-senha').value;
-            const confirmaSenha = document.getElementById('registro-confirma-senha').value;
-            const tipo = document.getElementById('registro-tipo').value;
-            
-            // Validações
-            if (senha !== confirmaSenha) {
-                alert('As senhas não coincidem!');
-                return;
+    // REGISTRO
+    document.getElementById('registro-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const nome = document.getElementById('registro-nome').value;
+        const email = document.getElementById('registro-email').value;
+        const senha = document.getElementById('registro-senha').value;
+        const confirmaSenha = document.getElementById('registro-confirma-senha').value;
+        const tipo = document.getElementById('registro-tipo').value;
+
+        if (senha !== confirmaSenha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
+
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres!');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/usuarios`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nome, email, senha, tipo })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Conta criada com sucesso! Faça login.');
+                mostrarLogin();
+                document.getElementById('registro-form').reset();
+            } else {
+                alert(data.error || 'Erro ao criar conta');
             }
-            
-            if (senha.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres!');
-                return;
-            }
-            
-            // Verificar se email já existe
-            const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            if (usuarios.find(u => u.email === email)) {
-                alert('Este email já está cadastrado!');
-                return;
-            }
-            
-            // Criar novo usuário
-            const novoUsuario = {
-                id: Date.now(),
-                nome: nome,
-                email: email,
-                senha: senha,
-                tipo: tipo,
-                dataCadastro: new Date().toLocaleDateString('pt-BR')
-            };
-            
-            usuarios.push(novoUsuario);
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-            
-            alert('Conta criada com sucesso! Agora você pode fazer login.');
-            mostrarLogin();
-            
-            // Limpar formulário
-            document.getElementById('registro-form').reset();
-        });
-    </script>
+        } catch (error) {
+            alert('Erro de conexão com o servidor');
+            console.error(error);
+        }
+    });
+</script>
+
+
 
     <style>
         .auth-container {

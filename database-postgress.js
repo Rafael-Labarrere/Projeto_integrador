@@ -19,28 +19,34 @@ export class DatabasePostgres {
         return salas
     }
 
-    async create(sala){
-        const salaId = randomUUID()
-        const { numero, descricao, capacidade } = sala
-
-        await sql`
-        INSERT INTO salas (id, numero, descricao, capacidade) VALUES (${salaId}, ${numero}, ${descricao}, ${capacidade})
-        `
+    async createUsuario(usuario) {
+    const { id, nome, email, senha, tipo } = usuario;
+    await sql`
+        INSERT INTO usuarios (id, nome, email, senha, tipo)
+        VALUES (${id}, ${nome}, ${email}, ${senha}, ${tipo})
+    `;
     }
+
+    async createReserva(reserva) {
+    const { id, usuario_id, sala_id, data, horario } = reserva;
+    await sql`
+        INSERT INTO reservas (id, usuario_id, sala_id, data, horario)
+        VALUES (${id}, ${usuario_id}, ${sala_id}, ${data}, ${horario})
+    `;
+    }
+
+
+
+
+
 
     async update(id, sala){
         //implementation needed
-        const { numero, descricao, capacidade } = sala
-        await sql`
-        UPDATE salas SET numero = ${numero}, descricao = ${descricao}, capacidade = ${capacidade} WHERE id = ${id}
-        `
+      
     }
 
     async delete(id){
         //implementation needed
-        const salaId = id
-        await sql`
-        DELETE FROM salas WHERE id = ${salaId}
-        `
+        
     }
 }
