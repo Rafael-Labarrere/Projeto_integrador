@@ -12,7 +12,7 @@ CREATE TABLE if not exists reservas (
   data_reserva TIMESTAMP DEFAULT NOW()
 );
 `.then( () => {
-  console.log('Ação bem sucedida');
+  console.log('Tabela reservas criada com sucesso');
 })
   
 
@@ -27,7 +27,19 @@ CREATE TABLE if not exists usuarios (
 );
 
 `.then( () => {
-  console.log('Ação bem sucedida');
+  console.log('Tabela usuarios criada com sucesso');
 })
 
-
+sql`
+  CREATE TABLE if not exists salas (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    bloco VARCHAR(20) NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    capacidade INT,
+    recursos TEXT,
+    disponivel BOOLEAN DEFAULT TRUE
+  );
+`.then( () => {
+  console.log('Tabela salas criada com sucesso');
+})

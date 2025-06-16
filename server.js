@@ -70,6 +70,21 @@ server.post('/reservas', async (request, reply) => {
   }
 });
 
+// GET: Listar salas
+server.get('/usuarios/:id/reservas', async (request, reply) => {
+  const usuarioId = request.params.id;
+
+  const reservas = await sql`
+    SELECT r.*, s.numero AS sala_numero
+    FROM reservas r
+    JOIN salas s ON r.sala_id = s.id
+    WHERE r.usuario_id = ${usuarioId}
+  `;
+
+  return reply.send(reservas);
+});
+
+
 // GET: Reservas por usuário
 server.get('/usuarios/:id/reservas', async (request, reply) => {
   const usuarioId = request.params.id;

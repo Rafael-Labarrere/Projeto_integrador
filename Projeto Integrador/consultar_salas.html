@@ -44,17 +44,7 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="filtro-box">
-            <label for="data">Data:</label>
-            <input type="date" id="data" />
-          </div>
-
-          <div class="filtro-box">
-            <label for="horario">Horário:</label>
-            <input type="time" id="horario" />
-          </div>
-        </div>
+      
 
         <div class="form-row full">
           <button class="filtrar-btn" onclick="filtrarSalas()">Filtrar</button>
@@ -62,43 +52,13 @@
       </section>
 
       <section class="salas-container">
-        <h2>Salas Disponíveis</h2>
+        <section class="salas-container">
+  <h2>Salas Disponíveis</h2>
+  <div id="salas-lista">
+    <!-- As salas vindas do backend serão inseridas aqui -->
+  </div>
+</section>
 
-        <div class="sala-card" data-bloco="bloco1" data-tipo="laboratorio" data-disponivel="true">
-          <h3>LAB 101 - Laboratório de Informática</h3>
-          <p><strong>Bloco:</strong> 1</p>
-          <p><strong>Capacidade:</strong> 30 alunos</p>
-          <p><strong>Recursos:</strong> Computadores, Projetor</p>
-          <div class="status disponivel">Disponível</div>
-          <button class="reservar-btn" onclick="window.location.href='reservar.html'">Reservar</button>
-        </div>
-
-        <div class="sala-card" data-bloco="bloco2" data-tipo="sala_aula" data-disponivel="true">
-          <h3>Sala 205 - Sala de Aula</h3>
-          <p><strong>Bloco:</strong> 2</p>
-          <p><strong>Capacidade:</strong> 40 alunos</p>
-          <p><strong>Recursos:</strong> Quadro branco, Projetor</p>
-          <div class="status disponivel">Disponível</div>
-          <button class="reservar-btn" onclick="window.location.href='reservar.html'">Reservar</button>
-        </div>
-
-        <div class="sala-card" data-bloco="bloco3" data-tipo="auditorio" data-disponivel="false">
-          <h3>Auditório Principal</h3>
-          <p><strong>Bloco:</strong> 3</p>
-          <p><strong>Capacidade:</strong> 120 pessoas</p>
-          <p><strong>Recursos:</strong> Som, Projeção, Palco</p>
-          <div class="status ocupado">Ocupado</div>
-          <button class="reservar-btn disabled" disabled>Indisponível</button>
-        </div>
-
-        <div class="sala-card" data-bloco="bloco1" data-tipo="sala_reuniao" data-disponivel="true">
-          <h3>Sala de Reuniões 1B</h3>
-          <p><strong>Bloco:</strong> 1</p>
-          <p><strong>Capacidade:</strong> 12 pessoas</p>
-          <p><strong>Recursos:</strong> Mesa de reunião, TV</p>
-          <div class="status disponivel">Disponível</div>
-          <button class="reservar-btn" onclick="window.location.href='reservar.html'">Reservar</button>
-        </div>
       </section>
     </main>
 
@@ -107,6 +67,51 @@
     </footer>
 
     <script>
+      async function carregarSalas() {
+  try {
+    const response = await fetch('/api/salas');
+    if (!response.ok) throw new Error('Erro ao carregar salas');
+    const salas = await response.json();
+    mostrarSalas(salas);
+  } catch (e) {
+    document.getElementById('salas-lista').innerHTML = `<p>Erro ao carregar salas.</p>`;
+    console.error(e);
+  }
+}
+
+function mostrarSalas(salas) {
+  const container = document.getElementById('salas-lista');
+  container.innerHTML = ''; // Limpa antes
+
+  salas.forEach((sala) => {
+    const div = document.createElement('div');
+    div.className = 'sala-card';
+    div.dataset.bloco = sala.bloco;
+    div.dataset.tipo = sala.tipo;
+    div.dataset.disponivel = sala.disponivel;
+
+    div.innerHTML = `
+      <h3>${sala.nome}</h3>
+      <p><strong>Bloco:</strong> ${sala.bloco.replace('bloco', '')}</p>
+      <p><strong>Capacidade:</strong> ${sala.capacidade} ${sala.capacidade > 1 ? 'alunos' : 'aluno'}</p>
+      <p><strong>Recursos:</strong> ${sala.recursos}</p>
+      <div class="status ${sala.disponivel ? 'disponivel' : 'ocupado'}">
+        ${sala.disponivel ? 'Disponível' : 'Ocupado'}
+      </div>
+      <button class="reservar-btn" ${!sala.disponivel ? 'disabled class="disabled"' : ''} onclick="window.location.href='reservar.html?sala=${sala.id}'">
+        ${sala.disponivel ? 'Reservar' : 'Indisponível'}
+      </button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarSalas();
+
+  // Se quiser, pode criar um filtro que refaça o fetch ou filtre a lista carregada
+});
+
       function filtrarSalas() {
         const filtroBloco = document.getElementById('bloco').value;
         const filtroTipo = document.getElementById('tipo').value;
