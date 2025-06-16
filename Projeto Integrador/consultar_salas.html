@@ -115,8 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       function filtrarSalas() {
         const filtroBloco = document.getElementById('bloco').value;
         const filtroTipo = document.getElementById('tipo').value;
-        const filtroData = document.getElementById('data').value;
-        const filtroHorario = document.getElementById('horario').value;
+  
 
         const cards = document.querySelectorAll('.sala-card');
 
@@ -137,10 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             exibir = false;
           }
 
-          // Filtro de data e horário
-          if ((filtroData || filtroHorario) && !disponivel) {
-            exibir = false;
-          }
+          
 
           // Mostrar ou ocultar
           card.style.display = exibir ? 'block' : 'none';

@@ -70,34 +70,18 @@ server.post('/reservas', async (request, reply) => {
   }
 });
 
-// GET: Listar salas
-server.get('/usuarios/:id/reservas', async (request, reply) => {
-  const usuarioId = request.params.id;
 
-  const reservas = await sql`
-    SELECT r.*, s.numero AS sala_numero
-    FROM reservas r
-    JOIN salas s ON r.sala_id = s.id
-    WHERE r.usuario_id = ${usuarioId}
-  `;
-
-  return reply.send(reservas);
+// GET: Listar salas disponíveis
+server.get('/api/salas', async (request, reply) => {
+  try {
+    const salas = await sql`SELECT * FROM salas WHERE disponivel = true`;
+    return reply.send(salas);
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro ao buscar salas' });
+  }
 });
 
-
-// GET: Reservas por usuário
-server.get('/usuarios/:id/reservas', async (request, reply) => {
-  const usuarioId = request.params.id;
-
-  const reservas = await sql`
-    SELECT r.*, s.numero AS sala_numero
-    FROM reservas r
-    JOIN salas s ON r.sala_id = s.id
-    WHERE r.usuario_id = ${usuarioId}
-  `;
-
-  return reply.send(reservas);
-});
 
 // Iniciar servidor
 server.listen({
