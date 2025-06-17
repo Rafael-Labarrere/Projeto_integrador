@@ -3,7 +3,8 @@ const API_URL = 'https://projeto-integrador-znob.onrender.com/api';
 
 
 export async function verificarAutenticacao() {
-  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
+
 
   // Verifica se o token/usuário existe e não está expirado
   if (!usuario || !usuario.id) {

@@ -23,7 +23,7 @@ async function reserva() {
   }
 
   try {
-    const userData = JSON.parse(localStorage.getItem('usuario'));
+    const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
 if (!userData || !userData.id) {
   alert('Usuário não autenticado. Faça login novamente.');
   window.location.href = 'login.html';
