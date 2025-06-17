@@ -44,39 +44,17 @@ server.post('/usuarios', async (request, reply) => {
 // POST: Login
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
-  console.log('Dados recebidos:', { email, senha }); // Log para debug
 
-  try {
-    const result = await sql`
-      SELECT id, nome, email, tipo 
-      FROM usuarios 
-      WHERE email = ${email} AND senha = ${senha}
-    `;
-    console.log('Resultado da query:', result); // Log do resultado
+  const result = await sql`
+    SELECT * FROM usuarios WHERE email = ${email} AND senha = ${senha}
+  `;
 
-    if (result.length === 0) {
-      return reply.status(401).send({ error: 'Credenciais inválidas' });
-    }
-
-    const usuario = result[0];
-    const token = crypto.randomBytes(32).toString('hex');
-    
-    await sql`
-      UPDATE usuarios SET token = ${token} 
-      WHERE id = ${usuario.id}
-    `;
-
-    return reply.send({ 
-      message: 'Login bem-sucedido', 
-      usuario: { ...usuario, token }
-    });
-  } catch (error) {
-    console.error('Erro detalhado:', error); // Log completo do erro
-    return reply.status(500).send({ 
-      error: 'Erro interno do servidor',
-      detalhes: error.message // Envia o erro real para debug (remova em produção)
-    });
+  if (result.length === 0) {
+    return reply.status(401).send({ error: 'Credenciais inválidas' });
   }
+
+  const usuario = result[0];
+  return reply.send({ message: 'Login bem-sucedido', usuarioId: usuario.id });
 });
 
 // Endpoint de verificação de sessão
