@@ -29,38 +29,7 @@
         </section>
 
         <section class="content">
-            <h2>Minhas Reservas Ativas</h2>
-            <div class="reservas-container">
-                <div class="reserva-card" id="reserva-1">
-                    <div class="reserva-info">
-                        <h3>Sala 101 - Laboratório de Informática</h3>
-                        <p><strong>Data:</strong> 15/03/2025</p>
-                        <p><strong>Horário:</strong> 14:00 às 16:00</p>
-                        <p><strong>Finalidade:</strong> Aula prática de Programação</p>
-                    </div>
-                    <button class="cancelar-btn" onclick="cancelarReserva(1)">Cancelar Reserva</button>
-                </div>
-        
-                <div class="reserva-card" id="reserva-2">
-                    <div class="reserva-info">
-                        <h3>Auditório Principal</h3>
-                        <p><strong>Data:</strong> 18/03/2025</p>
-                        <p><strong>Horário:</strong> 09:00 às 12:00</p>
-                        <p><strong>Finalidade:</strong> Apresentação de TCC</p>
-                    </div>
-                    <button class="cancelar-btn" onclick="cancelarReserva(2)">Cancelar Reserva</button>
-                </div>
-        
-                <div class="reserva-card" id="reserva-3">
-                    <div class="reserva-info">
-                        <h3>Sala 205 - Sala de Reuniões</h3>
-                        <p><strong>Data:</strong> 20/03/2025</p>
-                        <p><strong>Horário:</strong> 16:00 às 18:00</p>
-                        <p><strong>Finalidade:</strong> Reunião de Grupo de Pesquisa</p>
-                    </div>
-                    <button class="cancelar-btn" onclick="cancelarReserva(3)">Cancelar Reserva</button>
-                </div>
-            </div>
+          
         </section>
     </main>
     <script type="module">
@@ -71,6 +40,12 @@
     atualizarEstadoLogin();
     
  
+  });
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
   });
 </script>
 

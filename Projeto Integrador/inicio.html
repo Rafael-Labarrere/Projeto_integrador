@@ -42,22 +42,16 @@
     </h3>
         </section>
     </main>
+<!-- Script para verificar autenticação e atualizar estado de login -->
 <script type="module">
-  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  import { verificarAutenticacao, atualizarEstadoLogin, logout } from './auth.js';
   
   document.addEventListener('DOMContentLoaded', async () => {
     await verificarAutenticacao();
     atualizarEstadoLogin();
     
- // Em qualquer lugar onde precise fazer logout
-function logout() {
-  localStorage.removeItem('usuarioLogado');
-  
-  // Limpar token no servidor (opcional)
-  fetch(`${API_URL}/logout`, { method: 'POST' });
-  
-  window.location.href = 'login.html';
-}
+    // Tornar logout acessível globalmente se necessário
+    window.logout = logout;
   });
 </script>
     <footer>

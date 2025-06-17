@@ -96,7 +96,7 @@ export function atualizarEstadoLogin() {
     // Adicionar evento de logout
     document.getElementById('logout-link').addEventListener('click', (e) => {
       e.preventDefault();
-      logout();
+      logout(); // Chamar função de logout
     });
   } else {
     loginItem.innerHTML = `
@@ -110,14 +110,12 @@ const API_URL = "https://projeto-integrador-znob.onrender.com";
 export async function logout() {
   const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
   
-  // Se estiver logado, chamar API de logout
+  // Limpar token no servidor
   if (usuario && usuario.id) {
     try {
       await fetch(`${API_URL}/logout`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario_id: usuario.id })
       });
     } catch (error) {
@@ -125,9 +123,9 @@ export async function logout() {
     }
   }
   
-  // Remover dados do usuário do localStorage
+  // Remover dados locais
   localStorage.removeItem('usuarioLogado');
   
-  // Redirecionar para a página de login
+  // Redirecionar para login
   window.location.href = 'login.html';
 }

@@ -187,13 +187,12 @@ server.post('/logout', async (request, reply) => {
   const { usuario_id } = request.body;
   
   try {
-    // Limpar token do usuário
     await sql`
       UPDATE usuarios SET token = null 
       WHERE id = ${usuario_id}
     `;
     
-    return reply.send({ message: 'Logout realizado com sucesso' });
+    return reply.send({ message: 'Logout realizado' });
   } catch (error) {
     console.error(error);
     return reply.status(500).send({ error: 'Erro ao fazer logout' });
