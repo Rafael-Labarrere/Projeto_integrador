@@ -35,12 +35,11 @@
                     <thead>
                         <tr>
                             <th>Reservante</th>
-                            <th>UA</th>
+                            <th>RA</th>
                             <th>Sala</th>
                             <th>Data</th>
                             <th>Horário</th>
                             <th>Status</th>
-                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,88 +59,80 @@
             carregarReservas();
         });
 
-        function carregarReservas() {
-            const loading = document.getElementById('loading');
-            const tbody = document.querySelector('#tabela-reservas tbody');
-            
-            // Mostra loading
-            loading.style.display = 'block';
-            
-            try {
-                const dadosBrutos = localStorage.getItem('reservaDados');
-                let reservas = [];
-                
-                if (dadosBrutos) {
-                    reservas = JSON.parse(dadosBrutos);
-                    
-                    // Garante que é um array
-                    if (!Array.isArray(reservas)) {
-                        reservas = [];
-                    }
-                }
-                
-                // Esconde loading
-                loading.style.display = 'none';
-                
-                // Limpa a tabela
-                tbody.innerHTML = '';
-                
-                if (reservas.length > 0) {
-                    // Ordena as reservas por data (mais recentes primeiro)
-                    reservas.sort((a, b) => {
-                        const dataA = new Date(a.dataReserva || a.data);
-                        const dataB = new Date(b.dataReserva || b.data);
-                        return dataB - dataA;
-                    });
-                    
-                    reservas.forEach((reserva, index) => {
-                        const novaLinha = document.createElement('tr');
-                        
-                        // Determina a cor do status
-                        const statusColor = getStatusColor(reserva.status || 'Pendente');
-                        
-                        novaLinha.innerHTML = `
-                            <td>${reserva.nomeReservante}</td>
-                            <td>${reserva.ua}</td>
-                            <td>${formatarTipoEBloco(reserva.tipo, reserva.bloco)}</td>
-                            <td>${formatarData(reserva.data)}</td>
-                            <td>${formatarHorario(reserva.horario)}</td>
-                            <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
-                            <td>
-                                <button onclick="cancelarReserva(${index})" 
-                                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                                    Cancelar
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(novaLinha);
-                    });
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
-                                <p>Nenhuma reserva encontrada.</p>
-                                <p style="margin-top: 10px;">
-                                    <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
-                                        Fazer uma reserva →
-                                    </a>
-                                </p>
-                            </td>
-                        </tr>
-                    `;
-                }
-            } catch (e) {
-                console.error("Erro ao carregar reservas:", e);
-                loading.style.display = 'none';
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
-                            Erro ao carregar reservas. Tente recarregar a página.
-                        </td>
-                    </tr>
-                `;
-            }
-        }
+        async function carregarReservas() {
+  const loading = document.getElementById('loading');
+  const tbody = document.querySelector('#tabela-reservas tbody');
+  
+  loading.style.display = 'block';
+  tbody.innerHTML = '';
+
+  const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+  if (!usuario || !usuario.id) {
+    loading.style.display = 'none';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+          Você não está logado. <a href="login.html">Faça login</a>.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/usuario/${usuario.id}`);
+    if (!response.ok) throw new Error('Erro ao carregar reservas');
+
+    const reservas = await response.json();
+
+    if (reservas.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+            <p>Nenhuma reserva encontrada.</p>
+            <p style="margin-top: 10px;">
+              <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
+                Fazer uma reserva →
+              </a>
+            </p>
+          </td>
+        </tr>
+      `;
+    } else {
+      reservas.forEach(reserva => {
+        const novaLinha = document.createElement('tr');
+        const statusColor = getStatusColor(reserva.status || 'Pendente');
+        
+        novaLinha.innerHTML = `
+          <td>${reserva.nome_reservante}</td>
+          <td>${reserva.ra}</td>
+          <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
+          <td>${formatarData(reserva.data)}</td>
+          <td>${formatarHorario(reserva.horario)}</td>
+          <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
+          <td>
+            <button onclick="cancelarReserva('${reserva.id}')" 
+                    style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+              Cancelar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(novaLinha);
+      });
+    }
+  } catch (e) {
+    console.error("Erro ao carregar reservas:", e);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+          Erro ao carregar reservas. Tente recarregar a página.
+        </td>
+      </tr>
+    `;
+  } finally {
+    loading.style.display = 'none';
+  }
+}
 
         function formatarData(data) {
             if (!data) return '';
@@ -188,25 +179,6 @@
             }
         }
 
-        function cancelarReserva(index) {
-            if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
-                try {
-                    const dadosBrutos = localStorage.getItem('reservaDados');
-                    let reservas = JSON.parse(dadosBrutos) || [];
-                    
-                    if (index >= 0 && index < reservas.length) {
-                        reservas.splice(index, 1);
-                        localStorage.setItem('reservaDados', JSON.stringify(reservas));
-                        
-                        alert('Reserva cancelada com sucesso!');
-                        carregarReservas(); // Recarrega a tabela
-                    }
-                } catch (e) {
-                    console.error("Erro ao cancelar reserva:", e);
-                    alert('Erro ao cancelar reserva. Tente novamente.');
-                }
-            }
-        }
     </script>
 </body>
 </html>

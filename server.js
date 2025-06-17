@@ -82,6 +82,53 @@ server.get('/api/salas', async (request, reply) => {
   }
 });
 
+// POST: criar para reservas
+server.post('/api/reservas', async (request, reply) => {
+  const { usuario_id, sala_id, data, horario, ra, nome_reservante } = request.body;
+
+  try {
+    // 1. Verificar se a sala está disponível
+    const sala = await sql`SELECT disponivel FROM salas WHERE id = ${sala_id}`;
+    if (!sala[0] || !sala[0].disponivel) {
+      return reply.status(400).send({ error: 'Sala não disponível' });
+    }
+
+    // 2. Criar a reserva
+    await sql`
+      INSERT INTO reservas (id, usuario_id, sala_id, data, horario, ra, nome_reservante)
+      VALUES (gen_random_uuid(), ${usuario_id}, ${sala_id}, ${data}, ${horario}, ${ra}, ${nome_reservante})
+    `;
+
+    // 3. Atualizar status da sala para indisponível
+    await sql`
+      UPDATE salas SET disponivel = false WHERE id = ${sala_id}
+    `;
+
+    reply.send({ message: 'Reserva criada com sucesso' });
+  } catch (err) {
+    console.error(err);
+    reply.status(500).send({ error: 'Erro ao criar reserva' });
+  }
+});
+
+// GET: Listar reservas por usuário
+server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
+  const { usuario_id } = request.params;
+
+  try {
+    const reservas = await sql`
+      SELECT r.*, s.nome as sala_nome, s.bloco, s.tipo 
+      FROM reservas r
+      JOIN salas s ON r.sala_id = s.id
+      WHERE r.usuario_id = ${usuario_id}
+      ORDER BY r.data_reserva DESC
+    `;
+    return reply.send(reservas);
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro ao buscar reservas' });
+  }
+});
 
 // Iniciar servidor
 server.listen({
