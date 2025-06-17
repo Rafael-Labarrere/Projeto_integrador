@@ -23,8 +23,16 @@ async function reserva() {
   }
 
   try {
-    const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
-    if (!userData || !userData.id || !userData.token) {
+    const userDataString = localStorage.getItem('usuarioLogado');
+    if (!userDataString || userDataString === "undefined") {
+      alert('Usuário não autenticado. Faça login novamente.');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    const userData = JSON.parse(userDataString);
+
+    if (!userData.id || !userData.token) {
       alert('Usuário não autenticado. Faça login novamente.');
       window.location.href = 'login.html';
       return;
@@ -37,7 +45,7 @@ async function reserva() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`  // <- Enviando o token
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         sala_id: salaId,
@@ -55,7 +63,7 @@ async function reserva() {
     }
 
     alert('Reserva realizada com sucesso!');
-    window.location.href = 'historico.html'; // redireciona após reserva
+    window.location.href = 'historico.html';
 
   } catch (error) {
     console.error(error);
