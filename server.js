@@ -44,6 +44,7 @@ server.post('/usuarios', async (request, reply) => {
 // POST: Login
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
+  console.log('Dados recebidos:', { email, senha }); // Log para debug
 
   try {
     const result = await sql`
@@ -51,17 +52,15 @@ server.post('/login', async (request, reply) => {
       FROM usuarios 
       WHERE email = ${email} AND senha = ${senha}
     `;
+    console.log('Resultado da query:', result); // Log do resultado
 
     if (result.length === 0) {
       return reply.status(401).send({ error: 'Credenciais inválidas' });
     }
 
     const usuario = result[0];
-    
-    // Gerar token de acesso (simplificado)
     const token = crypto.randomBytes(32).toString('hex');
     
-    // Armazenar token no banco (em produção, usar Redis ou JWT)
     await sql`
       UPDATE usuarios SET token = ${token} 
       WHERE id = ${usuario.id}
@@ -69,17 +68,14 @@ server.post('/login', async (request, reply) => {
 
     return reply.send({ 
       message: 'Login bem-sucedido', 
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        tipo: usuario.tipo,
-        token
-      }
+      usuario: { ...usuario, token }
     });
   } catch (error) {
-    console.error(error);
-    return reply.status(500).send({ error: 'Erro interno do servidor' });
+    console.error('Erro detalhado:', error); // Log completo do erro
+    return reply.status(500).send({ 
+      error: 'Erro interno do servidor',
+      detalhes: error.message // Envia o erro real para debug (remova em produção)
+    });
   }
 });
 
