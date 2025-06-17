@@ -2,10 +2,10 @@ function obterIdSalaDaURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get("sala");
 }
-// reserva.js
+
+// Função para fazer a reserva
 async function reserva() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const salaId = urlParams.get('sala');
+  const salaId = obterIdSalaDaURL();
 
   if (!salaId) {
     alert('Erro: sala não encontrada na URL.');
@@ -24,19 +24,20 @@ async function reserva() {
 
   try {
     const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
-if (!userData || !userData.id) {
-  alert('Usuário não autenticado. Faça login novamente.');
-  window.location.href = 'login.html';
-  return;
-}
+    if (!userData || !userData.id || !userData.token) {
+      alert('Usuário não autenticado. Faça login novamente.');
+      window.location.href = 'login.html';
+      return;
+    }
 
-
-const userId = userData.id;
+    const userId = userData.id;
+    const token = userData.token;
 
     const response = await fetch('https://projeto-integrador-znob.onrender.com/api/reservas', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`  // <- Enviando o token
       },
       body: JSON.stringify({
         sala_id: salaId,
@@ -48,29 +49,37 @@ const userId = userData.id;
       })
     });
 
-    if (!response.ok) throw new Error('Erro ao fazer a reserva.');
+    if (!response.ok) {
+      const erroMsg = await response.text();
+      throw new Error(`Erro ao fazer a reserva: ${erroMsg}`);
+    }
 
     alert('Reserva realizada com sucesso!');
     window.location.href = 'historico.html'; // redireciona após reserva
 
   } catch (error) {
     console.error(error);
-    alert('Erro ao enviar reserva. Verifique os dados e tente novamente.');
+    alert(error.message);
   }
 }
 
+// Função para carregar dados da sala na página
 async function carregarSala() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const salaId = urlParams.get('sala');
+  const salaId = obterIdSalaDaURL();
 
   if (!salaId) return;
 
   try {
     const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/salas/${salaId}`);
+    if (!response.ok) {
+      throw new Error('Erro ao carregar dados da sala.');
+    }
     const sala = await response.json();
 
     const titulo = document.querySelector('h2');
-    titulo.innerText = `Fazer Reserva - ${sala.nome}`;
+    if (titulo) {
+      titulo.innerText = `Fazer Reserva - ${sala.nome}`;
+    }
   } catch (e) {
     console.error('Erro ao carregar sala:', e);
   }
