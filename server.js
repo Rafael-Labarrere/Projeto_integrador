@@ -182,6 +182,24 @@ server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
   }
 });
 
+// POST: Logout
+server.post('/logout', async (request, reply) => {
+  const { usuario_id } = request.body;
+  
+  try {
+    // Limpar token do usuário
+    await sql`
+      UPDATE usuarios SET token = null 
+      WHERE id = ${usuario_id}
+    `;
+    
+    return reply.send({ message: 'Logout realizado com sucesso' });
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro ao fazer logout' });
+  }
+});
+
 // Iniciar servidor
 server.listen({
   host: '0.0.0.0',

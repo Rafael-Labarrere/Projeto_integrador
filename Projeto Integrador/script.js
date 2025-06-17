@@ -1,3 +1,4 @@
+
 // Função para filtrar salas
 function filtrarSalas() {
     const filtro = document.getElementById('filtro').value;
@@ -200,3 +201,20 @@ document.addEventListener('DOMContentLoaded', function() {
         window.confirmAccountDeletion = confirmAccountDeletion;
     }
 });
+
+// Função para inicializar a página
+async function initPage() {
+  // Verificar autenticação
+  await verificarAutenticacao();
+  
+  // Atualizar estado do login/logout
+  atualizarEstadoLogin();
+  
+  // ... resto do seu código de inicialização ...
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', initPage);
+
+// Adicione logout também como função global se necessário
+window.logout = logout;

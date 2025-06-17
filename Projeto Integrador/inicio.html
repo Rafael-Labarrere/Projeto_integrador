@@ -49,7 +49,15 @@
     await verificarAutenticacao();
     atualizarEstadoLogin();
     
- 
+ // Em qualquer lugar onde precise fazer logout
+function logout() {
+  localStorage.removeItem('usuarioLogado');
+  
+  // Limpar token no servidor (opcional)
+  fetch(`${API_URL}/logout`, { method: 'POST' });
+  
+  window.location.href = 'login.html';
+}
   });
 </script>
     <footer>
