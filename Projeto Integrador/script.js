@@ -1,18 +1,6 @@
 
 // Função para filtrar salas
-function filtrarSalas() {
-    const filtro = document.getElementById('filtro').value;
-    const salas = document.querySelectorAll('#salas-lista li');
-    
-    salas.forEach(sala => {
-        const tipo = sala.getAttribute('data-tipo') || 'sala_aula';
-        if (filtro === 'todas' || tipo === filtro) {
-            sala.style.display = 'block';
-        } else {
-            sala.style.display = 'none';
-        }
-    });
-}
+
 // Função para exibir detalhes da sala
   import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
   
@@ -39,17 +27,7 @@ function fazerReserva(event) {
     document.getElementById('form-reserva').reset();
 }
 
-// Função para cancelar reserva
-function cancelarReserva(reservaId) {
-    if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
-        // Simular cancelamento
-        const reserva = document.getElementById(`reserva-${reservaId}`);
-        if (reserva) {
-            reserva.remove();
-            alert('Reserva cancelada com sucesso!');
-        }
-    }
-}
+
 
 // Login simulation
 function handleLogin(event) {
@@ -201,20 +179,3 @@ document.addEventListener('DOMContentLoaded', function() {
         window.confirmAccountDeletion = confirmAccountDeletion;
     }
 });
-
-// Função para inicializar a página
-async function initPage() {
-  // Verificar autenticação
-  await verificarAutenticacao();
-  
-  // Atualizar estado do login/logout
-  atualizarEstadoLogin();
-  
-  // ... resto do seu código de inicialização ...
-}
-
-// Inicializar quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', initPage);
-
-// Adicione logout também como função global se necessário
-window.logout = logout;
