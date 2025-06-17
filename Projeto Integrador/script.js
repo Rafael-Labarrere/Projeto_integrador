@@ -12,6 +12,13 @@ function filtrarSalas() {
         }
     });
 }
+// Função para exibir detalhes da sala
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+  });
 
 // Função para fazer reserva
 function fazerReserva(event) {

@@ -109,5 +109,15 @@
             }
         });
     </script>
+<script type="module">
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+    
+ 
+  });
+</script>
 </body>
 </html>

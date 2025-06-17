@@ -45,16 +45,68 @@ server.post('/usuarios', async (request, reply) => {
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
 
-  const result = await sql`
-    SELECT * FROM usuarios WHERE email = ${email} AND senha = ${senha}
-  `;
+  try {
+    const result = await sql`
+      SELECT id, nome, email, tipo 
+      FROM usuarios 
+      WHERE email = ${email} AND senha = ${senha}
+    `;
 
-  if (result.length === 0) {
-    return reply.status(401).send({ error: 'Credenciais inválidas' });
+    if (result.length === 0) {
+      return reply.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    const usuario = result[0];
+    
+    // Gerar token de acesso (simplificado)
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    // Armazenar token no banco (em produção, usar Redis ou JWT)
+    await sql`
+      UPDATE usuarios SET token = ${token} 
+      WHERE id = ${usuario.id}
+    `;
+
+    return reply.send({ 
+      message: 'Login bem-sucedido', 
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipo: usuario.tipo,
+        token
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro interno do servidor' });
   }
+});
 
-  const usuario = result[0];
-  return reply.send({ message: 'Login bem-sucedido', usuarioId: usuario.id });
+// Endpoint de verificação de sessão
+server.post('/verificar-sessao', async (request, reply) => {
+  const { authorization } = request.headers;
+  
+  if (!authorization) {
+    return reply.status(401).send({ error: 'Token não fornecido' });
+  }
+  
+  const token = authorization.replace('Bearer ', '');
+  
+  try {
+    const result = await sql`
+      SELECT id FROM usuarios WHERE token = ${token}
+    `;
+    
+    if (result.length === 0) {
+      return reply.status(401).send({ error: 'Sessão inválida' });
+    }
+    
+    return reply.send({ valid: true });
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro ao verificar sessão' });
+  }
 });
 
 // POST: Criar reserva

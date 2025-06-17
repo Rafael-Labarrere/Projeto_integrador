@@ -53,6 +53,16 @@
       </section>
     </main>
 
+<script type="module">
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+    
+ 
+  });
+</script>
     <footer>
       <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
     </footer>

@@ -12,7 +12,7 @@
         <ul class="menu">
             <li><a href="inicio.html">Início</a></li>
             <li><a href="consultar_salas.html">Consultar Salas</a></li>
-            <li><a href="reservar.html">Fazer Reserva</a></li>
+            
             <li><a href="historico.html">Minhas Reservas</a></li>
             <li><a href="cancelar.html">Cancelar Reservas</a></li>
             <li class="login"><a href="login.html">Sair</a></li>
@@ -180,5 +180,15 @@
         }
 
     </script>
+    <script type="module">
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+    
+ 
+  });
+</script>
 </body>
 </html>
