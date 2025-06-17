@@ -15,7 +15,6 @@
         <main>
             <section id="login-section">
                 <div class="auth-container">
-                    <!-- Área de Login -->
                     <div class="auth-box" id="login-box">
                         <h2>Entrar</h2>
                         <form id="login-form">
@@ -33,51 +32,37 @@
                         </form>
                         
                         <p class="auth-switch">
-                            Não tem uma conta? 
-                            <a href="#" onclick="mostrarRegistro()">Registre-se aqui</a>
+                            Não tem uma conta? <a href="#" id="show-register">Cadastre-se aqui</a>.
                         </p>
                     </div>
 
-                    <!-- Área de Registro -->
-                    <div class="auth-box" id="registro-box" style="display: none;">
-                        <h2>Criar Conta</h2>
-                        <form id="registro-form">
+                    <div class="auth-box" id="register-box" style="display: none;">
+                        <h2>Cadastro</h2>
+                        <form id="register-form">
                             <div class="form-group">
-                                <label for="registro-nome">Nome Completo:</label>
-                                <input type="text" id="registro-nome" required placeholder="Seu nome completo">
+                                <label for="register-nome">Nome Completo:</label>
+                                <input type="text" id="register-nome" required placeholder="Seu nome completo">
                             </div>
-                            
                             <div class="form-group">
-                                <label for="registro-email">Email:</label>
-                                <input type="email" id="registro-email" required placeholder="seu@email.com">
+                                <label for="register-email">Email:</label>
+                                <input type="email" id="register-email" required placeholder="seu@email.com">
                             </div>
-                            
                             <div class="form-group">
-                                <label for="registro-senha">Senha:</label>
-                                <input type="password" id="registro-senha" required placeholder="Mínimo 6 caracteres">
+                                <label for="register-senha">Senha:</label>
+                                <input type="password" id="register-senha" required placeholder="Crie uma senha">
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="registro-confirma-senha">Confirmar Senha:</label>
-                                <input type="password" id="registro-confirma-senha" required placeholder="Confirme sua senha">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="registro-tipo">Tipo de Usuário:</label>
-                                <select id="registro-tipo" required>
+                             <div class="form-group">
+                                <label for="register-tipo">Tipo de Usuário:</label>
+                                <select id="register-tipo" required>
                                     <option value="">Selecione</option>
                                     <option value="professor">Professor</option>
-                                    <option value="funcionario">Funcionário</option>
                                     <option value="aluno">Aluno</option>
                                 </select>
                             </div>
-                            
-                            <button type="submit">Criar Conta</button>
+                            <button type="submit">Cadastrar</button>
                         </form>
-                        
                         <p class="auth-switch">
-                            Já tem uma conta? 
-                            <a href="#" onclick="mostrarLogin()">Entre aqui</a>
+                            Já tem uma conta? <a href="#" id="show-login">Faça login aqui</a>.
                         </p>
                     </div>
                 </div>
@@ -85,104 +70,100 @@
         </main>
     </div>
 
-<script>
-    const API_URL = "https://projeto-integrador-znob.onrender.com";
+    <script>
+        // URL da sua API no Render
+        const API_URL = 'https://projeto-integrador-znob.onrender.com'; 
 
-    function mostrarRegistro() {
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('registro-box').style.display = 'block';
-    }
+        // Elementos do DOM
+        const loginBox = document.getElementById('login-box');
+        const registerBox = document.getElementById('register-box');
+        const showRegisterLink = document.getElementById('show-register');
+        const showLoginLink = document.getElementById('show-login');
 
-    function mostrarLogin() {
-        document.getElementById('registro-box').style.display = 'none';
-        document.getElementById('login-box').style.display = 'block';
-    }
-
-    // LOGIN
-
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const email = document.getElementById('login-email').value;
-    const senha = document.getElementById('login-senha').value;
-
-    try {
-        const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, senha })
+        // Event Listeners para alternar entre login e cadastro
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginBox.style.display = 'none';
+            registerBox.style.display = 'block';
         });
 
-        const data = await response.json();
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerBox.style.display = 'none';
+            loginBox.style.display = 'block';
+        });
 
-        if (response.ok) {
-        // Armazena TODOS os dados do usuário + token
-        localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
-        
-        // Atualiza o estado do menu
-        if (typeof atualizarEstadoLogin === 'function') {
-            atualizarEstadoLogin();
-        }
-        
-        alert('Login realizado com sucesso!');
-        window.location.href = 'loggedin.html';
-        } else {
-        alert(data.error || 'Erro ao fazer login');
-        }
-    } catch (error) {
-        alert('Erro de conexão com o servidor');
-        console.error(error);
-    }
-    });
+        // Lógica do formulário de LOGIN
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    // REGISTRO
-    document.getElementById('registro-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
 
-        const nome = document.getElementById('registro-nome').value;
-        const email = document.getElementById('registro-email').value;
-        const senha = document.getElementById('registro-senha').value;
-        const confirmaSenha = document.getElementById('registro-confirma-senha').value;
-        const tipo = document.getElementById('registro-tipo').value;
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, senha })
+                });
 
-        if (senha !== confirmaSenha) {
-            alert('As senhas não coincidem!');
-            return;
-        }
+                const data = await response.json();
 
-        if (senha.length < 6) {
-            alert('A senha deve ter pelo menos 6 caracteres!');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_URL}/usuarios`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ nome, email, senha, tipo })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Conta criada com sucesso! Faça login.');
-                mostrarLogin();
-                document.getElementById('registro-form').reset();
-            } else {
-                alert(data.error || 'Erro ao criar conta');
+                if (response.ok) {
+                    // *** A alteração chave está aqui: ***
+                    // O backend agora deve retornar um objeto 'usuario' que inclui o 'id' e o 'token'.
+                    // Salvamos este objeto completo no localStorage.
+                    localStorage.setItem('usuarioLogado', JSON.stringify(data.usuario));
+                    
+                    alert('Login realizado com sucesso!');
+                    window.location.href = 'consultar_salas.html'; // Redirecione para a página principal após o login
+                } else {
+                    alert(data.error || 'Erro ao fazer login. Verifique suas credenciais.');
+                }
+            } catch (error) {
+                console.error('Erro de conexão ao tentar logar:', error);
+                alert('Erro de conexão com o servidor. Tente novamente mais tarde.');
             }
-        } catch (error) {
-            alert('Erro de conexão com o servidor');
-            console.error(error);
-        }
-    });
-</script>
+        });
 
+        // Lógica do formulário de CADASTRO
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
+            const nome = document.getElementById('register-nome').value;
+            const email = document.getElementById('register-email').value;
+            const senha = document.getElementById('register-senha').value;
+            const tipo = document.getElementById('register-tipo').value;
+
+            try {
+                const response = await fetch(`${API_URL}/usuarios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, senha, tipo })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || 'Usuário cadastrado com sucesso!');
+                    // Após o cadastro, você pode redirecionar para a página de login
+                    loginBox.style.display = 'block';
+                    registerBox.style.display = 'none';
+                    document.getElementById('login-email').value = email; // Preenche o email para facilitar o login
+                    document.getElementById('login-senha').value = '';
+                } else {
+                    alert(data.error || 'Erro ao cadastrar usuário.');
+                }
+            } catch (error) {
+                console.error('Erro de conexão ao tentar cadastrar:', error);
+                alert('Erro de conexão com o servidor. Tente novamente mais tarde.');
+            }
+        });
+    </script>
 
     <style>
         .auth-container {

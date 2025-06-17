@@ -4,9 +4,41 @@ import fastifyFormbody from '@fastify/formbody';
 import { DatabasePostgres } from "./database-postgress.js";
 import crypto from 'crypto';
 import { sql } from "./db.js"; // se você usa esse método no login e reservas
+import 'dotenv/config'; // Importa e carrega as variáveis do .env
+import jwt from 'jsonwebtoken';
+// ... outros imports
 
+// Agora, o JWT_SECRET será lido do seu arquivo .env
+const JWT_SECRET = process.env.JWT_SECRET; 
+// É bom adicionar uma verificação simples caso a variável não seja definida (embora deva ser)
+if (!JWT_SECRET) {
+  console.error('Erro: JWT_SECRET não definido no ambiente!');
+  process.exit(1); // Encerra o aplicativo se a chave secreta crucial não estiver presente
+}
+
+//remover
 const server = fastify();
 const database = new DatabasePostgres();
+// Middleware/Hook para autenticação de token JWT
+const authenticate = async (request, reply) => {
+  const { authorization } = request.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return reply.status(401).send({ error: 'Não autorizado: Token não fornecido ou formato inválido' });
+  }
+
+  const token = authorization.replace('Bearer ', '');
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    // Anexa o ID do usuário decodificado ao objeto request para uso posterior
+    request.userId = decoded.id; // Isso fará com que o ID do usuário autenticado esteja disponível em request.userId
+  } catch (err) {
+    console.error("Erro na autenticação (preHandler):", err);
+    // Captura erros como JsonWebTokenError (token inválido) ou TokenExpiredError (token expirado)
+    return reply.status(401).send({ error: 'Não autorizado: Token inválido ou expirado' });
+  }
+};
 
 // Plugins (ordem correta e depois que server foi criado)
 await server.register(cors, {
@@ -41,13 +73,13 @@ server.post('/usuarios', async (request, reply) => {
   }
 });
 
-// POST: Login
+
 // POST: Login
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
 
   const result = await sql`
-    SELECT * FROM usuarios WHERE email = ${email} AND senha = ${senha}
+    SELECT id, nome, email, tipo FROM usuarios WHERE email = ${email} AND senha = ${senha}
   `;
 
   if (result.length === 0) {
@@ -55,33 +87,51 @@ server.post('/login', async (request, reply) => {
   }
 
   const usuario = result[0];
-  return reply.send({ message: 'Login bem-sucedido', usuarioId: usuario.id });
+
+  // 1. Gerar TOKEN JWT
+  const token = jwt.sign({ id: usuario.id, email: usuario.email, tipo: usuario.tipo }, JWT_SECRET, { expiresIn: '1h' }); // Token válido por 1 hora
+
+  // 2. Opcional: Armazenar o token no banco de dados (útil para invalidar tokens em logout ou mudança de senha)
+  // Você já tem uma coluna 'token' na sua tabela 'usuarios'.
+  // Garanta que esta coluna seja TEXT ou VARCHAR suficiente para o token JWT.
+  await sql`
+    UPDATE usuarios SET token = ${token} WHERE id = ${usuario.id}
+  `;
+
+  // 3. Retornar o token e os dados do usuário (exceto a senha)
+  return reply.send({ message: 'Login bem-sucedido', usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo, token: token } });
 });
 
 
 // Endpoint de verificação de sessão
 server.post('/verificar-sessao', async (request, reply) => {
   const { authorization } = request.headers;
-  
-  if (!authorization) {
-    return reply.status(401).send({ error: 'Token não fornecido' });
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return reply.status(401).send({ error: 'Token não fornecido ou formato inválido' });
   }
-  
+
   const token = authorization.replace('Bearer ', '');
-  
+
   try {
+    const decoded = jwt.verify(token, JWT_SECRET); // Valida o token com a chave secreta
+
+    // Opcional: verificar se o token ainda existe no banco de dados (para tokens revogados)
     const result = await sql`
-      SELECT id FROM usuarios WHERE token = ${token}
+      SELECT id FROM usuarios WHERE id = ${decoded.id} AND token = ${token}
     `;
-    
+
     if (result.length === 0) {
-      return reply.status(401).send({ error: 'Sessão inválida' });
+      return reply.status(401).send({ error: 'Sessão inválida ou token revogado' });
     }
-    
-    return reply.send({ valid: true });
+
+    // Você pode adicionar o ID do usuário decodificado ao request para uso posterior, se necessário
+    request.userId = decoded.id;
+    return reply.send({ valid: true, userId: decoded.id });
   } catch (error) {
-    console.error(error);
-    return reply.status(500).send({ error: 'Erro ao verificar sessão' });
+    console.error("Erro na verificação de sessão:", error);
+    // Erros comuns aqui: TokenExpiredError, JsonWebTokenError (token malformado)
+    return reply.status(401).send({ error: 'Sessão inválida ou expirada' });
   }
 });
 
@@ -110,9 +160,19 @@ server.get('/api/salas', async (request, reply) => {
   }
 });
 
-// POST: criar para reservas
-server.post('/api/reservas', async (request, reply) => {
-  const { usuario_id, sala_id, data, horario, ra, nome_reservante } = request.body;
+// POST: Criar reserva
+// Aplica o hook 'authenticate' antes de processar a requisição
+server.post('/api/reservas', { preHandler: [authenticate] }, async (request, reply) => {
+  // O usuario_id agora vem do token autenticado, não do corpo da requisição.
+  const usuario_id_autenticado = request.userId;
+
+  // Os demais dados da reserva vêm do corpo da requisição
+  const { sala_id, data, horario, ra, nome_reservante } = request.body;
+
+  // Opcional, mas recomendado: Se o request.body.usuario_id for enviado, verifique se corresponde ao autenticado.
+  // if (request.body.usuario_id && request.body.usuario_id !== usuario_id_autenticado) {
+  //   return reply.status(403).send({ error: 'Proibido: O ID de usuário no corpo da requisição não corresponde ao usuário autenticado.' });
+  // }
 
   try {
     // 1. Verificar se a sala está disponível
@@ -121,10 +181,10 @@ server.post('/api/reservas', async (request, reply) => {
       return reply.status(400).send({ error: 'Sala não disponível' });
     }
 
-    // 2. Criar a reserva
+    // 2. Criar a reserva usando o ID do usuário autenticado pelo token
     await sql`
       INSERT INTO reservas (id, usuario_id, sala_id, data, horario, ra, nome_reservante)
-      VALUES (gen_random_uuid(), ${usuario_id}, ${sala_id}, ${data}, ${horario}, ${ra}, ${nome_reservante})
+      VALUES (gen_random_uuid(), ${usuario_id_autenticado}, ${sala_id}, ${data}, ${horario}, ${ra}, ${nome_reservante})
     `;
 
     // 3. Atualizar status da sala para indisponível
@@ -160,19 +220,20 @@ server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
 
 // POST: Logout
 
-server.post('/logout', async (request, reply) => {
-  const { usuario_id } = request.body;
-  
+server.post('/logout', { preHandler: [authenticate] }, async (request, reply) => {
+  // O userId já está anexado ao request pelo `authenticate` preHandler
+  const userIdToLogout = request.userId;
+
   try {
     await sql`
-      UPDATE usuarios SET token = null 
-      WHERE id = ${usuario_id}
+      UPDATE usuarios SET token = null
+      WHERE id = ${userIdToLogout}
     `;
-    
-    return reply.send({ message: 'Logout realizado' });
+
+    return reply.send({ message: 'Logout realizado com sucesso' });
   } catch (error) {
     console.error(error);
-    return reply.status(500).send({ error: 'Erro ao fazer logout' });
+    return reply.status(500).send({ error: 'Erro ao fazer logout ou token inválido' });
   }
 });
 
