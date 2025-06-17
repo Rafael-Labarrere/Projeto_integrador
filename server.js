@@ -4,36 +4,9 @@ import fastifyFormbody from '@fastify/formbody';
 import { DatabasePostgres } from "./database-postgress.js";
 import crypto from 'crypto';
 import { sql } from "./db.js"; // se você usa esse método no login e reservas
-import dotenv from 'dotenv';
-dotenv.config();
-import jwt from 'jsonwebtoken';
-const JWT_SECRET = process.env.JWT_SECRET;
-
-async function verifyJWT(request, reply) {
-  try {
-    const authHeader = request.headers.authorization;
-    if (!authHeader) {
-      return reply.status(401).send({ error: 'Token não fornecido' });
-    }
-
-    // Remove o "Bearer " do início do token
-    const token = authHeader.replace('Bearer ', '');
-
-    // Verifica e decodifica o token
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    // Salva os dados decodificados no request para usar nas rotas
-    request.user = decoded;
-
-  } catch (err) {
-    return reply.status(401).send({ error: 'Token inválido ou expirado' });
-  }
-}
-
 
 const server = fastify();
 const database = new DatabasePostgres();
-
 
 // Plugins (ordem correta e depois que server foi criado)
 await server.register(cors, {
@@ -72,45 +45,69 @@ server.post('/usuarios', async (request, reply) => {
 server.post('/login', async (request, reply) => {
   const { email, senha } = request.body;
 
-  const result = await sql`
-    SELECT * FROM usuarios WHERE email = ${email} AND senha = ${senha}
-  `;
+  try {
+    const result = await sql`
+      SELECT id, nome, email, tipo 
+      FROM usuarios 
+      WHERE email = ${email} AND senha = ${senha}
+    `;
 
-  if (result.length === 0) {
-    return reply.status(401).send({ error: 'Credenciais inválidas' });
+    if (result.length === 0) {
+      return reply.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    const usuario = result[0];
+    
+    // Gerar token de acesso (simplificado)
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    // Armazenar token no banco (em produção, usar Redis ou JWT)
+    await sql`
+      UPDATE usuarios SET token = ${token} 
+      WHERE id = ${usuario.id}
+    `;
+
+    return reply.send({ 
+      message: 'Login bem-sucedido', 
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        tipo: usuario.tipo,
+        token
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro interno do servidor' });
   }
-
-  const usuario = result[0];
-
-  // Gerar token JWT válido por 1 dia (86400 segundos)
-  const token = jwt.sign(
-    { usuarioId: usuario.id, email: usuario.email },
-    JWT_SECRET,
-    { expiresIn: '1d' }
-  );
-
-  // Enviar token junto com resposta
-  return reply.send({ message: 'Login bem-sucedido', token });
 });
 
-
+// Endpoint de verificação de sessão
 server.post('/verificar-sessao', async (request, reply) => {
-  const authHeader = request.headers.authorization;
-  if (!authHeader) {
+  const { authorization } = request.headers;
+  
+  if (!authorization) {
     return reply.status(401).send({ error: 'Token não fornecido' });
   }
-
-  const token = authHeader.replace('Bearer ', '');
-
+  
+  const token = authorization.replace('Bearer ', '');
+  
   try {
-    // Apenas tenta validar o token, se OK retorna válido
-    jwt.verify(token, JWT_SECRET);
+    const result = await sql`
+      SELECT id FROM usuarios WHERE token = ${token}
+    `;
+    
+    if (result.length === 0) {
+      return reply.status(401).send({ error: 'Sessão inválida' });
+    }
+    
     return reply.send({ valid: true });
   } catch (error) {
-    return reply.status(401).send({ error: 'Sessão inválida ou expirada' });
+    console.error(error);
+    return reply.status(500).send({ error: 'Erro ao verificar sessão' });
   }
 });
-
 
 // POST: Criar reserva
 server.post('/reservas', async (request, reply) => {
@@ -186,6 +183,7 @@ server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
 });
 
 // POST: Logout
+
 server.post('/logout', async (request, reply) => {
   const { usuario_id } = request.body;
   
