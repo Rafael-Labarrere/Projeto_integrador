@@ -12,6 +12,7 @@
         <ul class="menu">
             <li><a href="inicio.html">Início</a></li>
             <li><a href="consultar_salas.html">Consultar Salas</a></li>
+            
             <li><a href="historico.html">Minhas Reservas</a></li>
             <li><a href="cancelar.html">Cancelar Reservas</a></li>
             <li class="login"><a href="loggedin.html">Área do Usuário</a></li>
@@ -42,7 +43,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="6">Carregando...</td></tr>
+                        <!-- Reservas serão inseridas aqui via JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -53,122 +54,81 @@
         <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
     </footer>
 
-    <script type="module">
-        import { verificarAutenticacao } from './auth.js'; 
-
-        // Agora API_URL será 'https://projeto-integrador-znob.onrender.com'
-        // Portanto, *DEVE-SE* adicionar '/api' nas rotas que o usam no backend.
-        const API_URL = 'https://projeto-integrador-znob.onrender.com'; 
-
-        document.addEventListener("DOMContentLoaded", async () => {
-            console.log('DOMContentLoaded disparado em historico.html');
-            const autenticado = await verificarAutenticacao();
-            console.log('Usuário autenticado:', autenticado);
-            
-            if (autenticado) {
-                carregarReservas();
-            } else {
-                const tbody = document.querySelector('#tabela-reservas tbody');
-                tbody.innerHTML = `<tr><td colspan="6">Você não está logado. Por favor, <a href="login.html">faça login</a>.</td></tr>`;
-                document.getElementById('loading').style.display = 'none';
-            }
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarReservas();
         });
 
         async function carregarReservas() {
-            const loading = document.getElementById('loading');
-            const tbody = document.querySelector('#tabela-reservas tbody');
-            
-            loading.style.display = 'block';
-            tbody.innerHTML = '';
+  const loading = document.getElementById('loading');
+  const tbody = document.querySelector('#tabela-reservas tbody');
+  
+  loading.style.display = 'block';
+  tbody.innerHTML = '';
 
-            const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-            console.log('Dados do usuário do localStorage (Historico):', usuario);
+  const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+  if (!usuario || !usuario.id) {
+    loading.style.display = 'none';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+          Você não está logado. <a href="login.html">Faça login</a>.
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
-            if (!usuario || !usuario.id || !usuario.token) { 
-                loading.style.display = 'none';
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #dc3545;">
-                            Você não está logado. <a href="login.html">Faça login</a>.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+  try {
+    const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/usuario/${usuario.id}`);
+    if (!response.ok) throw new Error('Erro ao carregar reservas');
 
-            try {
-                // ATENÇÃO AQUI: ADICIONANDO '/api' porque API_URL não o possui.
-                const url = `${API_URL}/api/reservas/usuario/${usuario.id}`; 
-                console.log('Tentando buscar reservas de (Historico):', url);
+    const reservas = await response.json();
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${usuario.token}` 
-                    }
-                }); 
-                
-                console.log('Resposta do fetch (Historico):', response);
+    if (reservas.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+            <p>Nenhuma reserva encontrada.</p>
+            <p style="margin-top: 10px;">
+              <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
+                Fazer uma reserva →
+              </a>
+            </p>
+          </td>
+        </tr>
+      `;
+    } else {
+      reservas.forEach(reserva => {
+        const novaLinha = document.createElement('tr');
+        const statusColor = getStatusColor(reserva.status || 'Pendente');
+        
+        novaLinha.innerHTML = `
+          <td>${reserva.nome_reservante}</td>
+          <td>${reserva.ra}</td>
+          <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
+          <td>${formatarData(reserva.data)}</td>
+          <td>${formatarHorario(reserva.horario)}</td>
+          <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
+          
+        `;
+        tbody.appendChild(novaLinha);
+      });
+    }
+  } catch (e) {
+    console.error("Erro ao carregar reservas:", e);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+          Erro ao carregar reservas. Tente recarregar a página.
+        </td>
+      </tr>
+    `;
+  } finally {
+    loading.style.display = 'none';
+  }
+}
 
-                if (!response.ok) {
-                    let errorMsg = 'Erro desconhecido ao carregar reservas.';
-                    try {
-                        const errorData = await response.json();
-                        errorMsg = errorData.error || errorMsg;
-                    } catch (jsonError) {
-                        errorMsg = `Erro ao carregar reservas: Status ${response.status}. Resposta não é JSON.`;
-                    }
-                    throw new Error(errorMsg);
-                }
-
-                const reservas = await response.json();
-                console.log('Reservas recebidas (Historico):', reservas);
-
-                if (reservas.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
-                                <p>Nenhuma reserva encontrada.</p>
-                                <p style="margin-top: 10px;">
-                                    <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
-                                        Fazer uma reserva →
-                                    </a>
-                                </p>
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    reservas.forEach(reserva => {
-                        const novaLinha = document.createElement('tr');
-                        const statusColor = getStatusColor(reserva.status || 'Pendente');
-                        
-                        novaLinha.innerHTML = `
-                            <td>${reserva.nome_reservante || ''}</td>
-                            <td>${reserva.ra || ''}</td>
-                            <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
-                            <td>${formatarData(reserva.data)}</td>
-                            <td>${formatarHorario(reserva.horario)}</td>
-                            <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
-                        `;
-                        tbody.appendChild(novaLinha);
-                    });
-                }
-            } catch (e) {
-                console.error("Erro ao carregar reservas (Historico, catch block):", e);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px; color: #dc3545;">
-                            Erro ao carregar reservas. Tente recarregar a página. ${e.message || ''}
-                        </td>
-                    </tr>
-                `;
-            } finally {
-                loading.style.display = 'none';
-            }
-        }
-
-        // Funções de formatação e statusColor (iguais às anteriores)
         function formatarData(data) {
             if (!data) return '';
             try {
@@ -189,8 +149,19 @@
             }
         }
 
+        function formatarTipoEBloco(tipo, bloco) {
+            if (!tipo || !bloco) return 'N/A';
+            
+            let tipoFormatado = tipo.replace('_', ' ');
+            tipoFormatado = tipoFormatado.charAt(0).toUpperCase() + tipoFormatado.slice(1);
+            
+            const blocoFormatado = bloco.replace('bloco', 'Bloco ');
+            
+            return `${tipoFormatado} - ${blocoFormatado}`;
+        }
+
         function getStatusColor(status) {
-            switch ((status || '').toLowerCase()) {
+            switch (status.toLowerCase()) {
                 case 'confirmado':
                 case 'aprovado':
                     return '#28a745';
@@ -202,6 +173,23 @@
                     return '#ffc107';
             }
         }
+
     </script>
+    <script type="module">
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+    
+ 
+  });
+  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+  
+  document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAutenticacao();
+    atualizarEstadoLogin();
+  });
+</script>
 </body>
 </html>
