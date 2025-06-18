@@ -195,19 +195,12 @@ server.post('/api/reservas', { preHandler: [authenticate] }, async (request, rep
 });
 
 // GET: Listar reservas por usuário
-// GET: Listar reservas por usuário
-server.get('/api/reservas/usuario/:usuario_id', { preHandler: [authenticate] }, async (request, reply) => { // Adicionado authenticate aqui
+server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
   const { usuario_id } = request.params;
-
-  // O userId já está anexado ao request pelo `authenticate` preHandler
-  // É uma boa prática verificar se o usuario_id da URL corresponde ao userId logado
-  if (request.userId !== usuario_id) {
-    return reply.status(403).send({ error: 'Não autorizado: Você só pode ver suas próprias reservas.' });
-  }
 
   try {
     const reservas = await sql`
-      SELECT r.*, s.nome as sala_nome, s.bloco, s.tipo
+      SELECT r.*, s.nome as sala_nome, s.bloco, s.tipo 
       FROM reservas r
       JOIN salas s ON r.sala_id = s.id
       WHERE r.usuario_id = ${usuario_id}
@@ -219,7 +212,6 @@ server.get('/api/reservas/usuario/:usuario_id', { preHandler: [authenticate] }, 
     return reply.status(500).send({ error: 'Erro ao buscar reservas' });
   }
 });
-
 
 // POST: Logout
 server.post('/logout', { preHandler: [authenticate] }, async (request, reply) => {
