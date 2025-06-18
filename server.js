@@ -41,10 +41,12 @@ const authenticate = async (request, reply) => {
 };
 
 // Plugins (ordem correta e depois que server foi criado)
+// Plugins (ordem correta e depois que server foi criado)
 await server.register(cors, {
-  origin: '*'
+  origin: '*', // Permite qualquer origem
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // <<--- ADICIONE ESTA LINHA!
+  credentials: true // Isso é bom para tokens e cookies, mantenha se usar autenticação
 });
-
 await server.register(fastifyFormbody);
 
 // Esse parser ajuda o Fastify a entender o JSON (pode ser opcional se `formbody` já estiver funcionando)
