@@ -142,7 +142,7 @@
                             <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
                                 <p>Nenhuma reserva encontrada.</p>
                                 <p style="margin-top: 10px;">
-                                    <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
+                                    <a href="consultar_salas.html" style="color: #003366; text-decoration: none; font-weight: bold;">
                                         Fazer uma reserva →
                                     </a>
                                 </p>
@@ -159,10 +159,10 @@
                         const statusColor = getStatusColor(reserva.status || 'Pendente'); 
                         
                         novaLinha.innerHTML = `
-                            <td>${reserva.nome_reservante}</td>
+                            <td>${formatarData(reserva.data_reserva)}</td>
                             <td>${reserva.ra}</td>
                             <td>${reserva.sala_nome} (${formatarTipoEBloco(reserva.tipo, reserva.bloco)})</td>
-                            <td>${formatarData(reserva.data_reserva)}</td>
+                            <td>${formatarData(reserva.data)}</td>
                             <td>${formatarHorario(reserva.horario)}</td>
                             <td>
                                 <button class="cancelar-btn" data-id="${reserva.id}" style="background-color: ${statusColor}; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
