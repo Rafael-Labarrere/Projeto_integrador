@@ -101,7 +101,7 @@
     } else {
       reservas.forEach(reserva => {
         const novaLinha = document.createElement('tr');
-        const statusColor = getStatusColor(reserva.status || 'Pendente');
+        const statusColor = getStatusColor(reserva.status || 'Confirmada');
         
         novaLinha.innerHTML = `
           <td>${reserva.nome_reservante}</td>
@@ -109,7 +109,7 @@
           <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
           <td>${formatarData(reserva.data)}</td>
           <td>${formatarHorario(reserva.horario)}</td>
-          <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
+          <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Confirmada'}</span></td>
           
         `;
         tbody.appendChild(novaLinha);
