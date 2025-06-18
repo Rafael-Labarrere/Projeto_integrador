@@ -104,17 +104,19 @@
         const statusColor = getStatusColor(reserva.status || 'Pendente');
         
         novaLinha.innerHTML = `
-          <td>${formatarData(reserva.data_reserva)}</td>
-          <td>${reserva.ra}</td>
-          <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
-          <td>${formatarData(reserva.data)}</td>
-          <td>${formatarHorario(reserva.horario)}</td>
-            <td>
-                <button class="cancelar-btn" style="background-color: ${statusColor}; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
-                Cancelar
-                </button>
-          
+        <td>${reserva.nome_reservante}</td>
+        <td>${reserva.ra}</td>
+        <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
+        <td>${formatarData(reserva.data_reserva)}</td>
+        <td>${formatarHorario(reserva.horario)}</td>
+        <td>
+            <button class="cancelar-btn" data-id="${reserva.id}" style="background-color: ${statusColor}; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+            Cancelar
+            </button>
+        </td>
         `;
+
+        // Adiciona o botão na tabela
         tbody.appendChild(novaLinha);
       });
     }
@@ -142,6 +144,31 @@
         return data;
     }
 }
+document.addEventListener('click', async (e) => {
+  if (e.target && e.target.classList.contains('cancelar-btn')) {
+    const reservaId = e.target.dataset.id;
+
+    if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
+      try {
+        const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/${reservaId}`, {
+          method: 'DELETE'
+        });
+
+        const resultado = await response.json();
+
+        if (response.ok) {
+          alert("Reserva cancelada com sucesso!");
+          carregarReservas(); // Atualiza a tabela após cancelamento
+        } else {
+          alert("Erro ao cancelar reserva: " + resultado.erro);
+        }
+      } catch (error) {
+        alert("Erro ao conectar com o servidor.");
+        console.error(error);
+      }
+    }
+  }
+});
 
 
         function formatarHorario(horario) {
@@ -180,21 +207,14 @@
         }
 
     </script>
-    <script type="module">
+   <script type="module">
   import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
-  
-  document.addEventListener('DOMContentLoaded', async () => {
-    await verificarAutenticacao();
-    atualizarEstadoLogin();
-    
- 
-  });
-  import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
-  
+
   document.addEventListener('DOMContentLoaded', async () => {
     await verificarAutenticacao();
     atualizarEstadoLogin();
   });
 </script>
+
 </body>
 </html>

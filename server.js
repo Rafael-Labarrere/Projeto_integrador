@@ -232,6 +232,37 @@ server.post('/logout', { preHandler: [authenticate] }, async (request, reply) =>
 });
 
 
+//delete: Cancelar reserva
+server.delete('/api/reservas/:id', async (request, reply) => {
+  const { id } = request.params;
+
+  try {
+    // Obter a reserva para pegar o sala_id
+    const reserva = await sql`SELECT sala_id FROM reservas WHERE id = ${id}`;
+    if (reserva.length === 0) {
+      return reply.code(404).send({ erro: 'Reserva não encontrada' });
+    }
+
+    const salaId = reserva[0].sala_id;
+
+    // Deletar a reserva
+    await sql`DELETE FROM reservas WHERE id = ${id}`;
+
+    // Atualizar disponibilidade da sala
+    await sql`
+      UPDATE salas
+      SET disponivel = true
+      WHERE id = ${salaId}
+    `;
+
+    reply.send({ mensagem: 'Reserva cancelada com sucesso.' });
+  } catch (error) {
+    console.error(error);
+    reply.code(500).send({ erro: 'Erro ao cancelar reserva.' });
+  }
+});
+
+
 // Iniciar servidor
 server.listen({
   host: '0.0.0.0',
