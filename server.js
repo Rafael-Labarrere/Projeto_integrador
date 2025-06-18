@@ -6,11 +6,11 @@ import crypto from 'crypto';
 import { sql } from "./db.js"; // se você usa esse método no login e reservas
 import 'dotenv/config'; // Importa e carrega as variáveis do .env
 import jwt from 'jsonwebtoken';
-// ... outros imports
 
-// Agora, o JWT_SECRET será lido do seu arquivo .env
+
+// WT_SECRET será lido do seu arquivo .env
 const JWT_SECRET = process.env.JWT_SECRET; 
-// É bom adicionar uma verificação simples caso a variável não seja definida (embora deva ser)
+// Verifica se a chave secreta JWT está definida no ambiente
 if (!JWT_SECRET) {
   console.error('Erro: JWT_SECRET não definido no ambiente!');
   process.exit(1); // Encerra o aplicativo se a chave secreta crucial não estiver presente
@@ -169,11 +169,6 @@ server.post('/api/reservas', { preHandler: [authenticate] }, async (request, rep
   // Os demais dados da reserva vêm do corpo da requisição
   const { sala_id, data, horario, ra, nome_reservante } = request.body;
 
-  // Opcional, mas recomendado: Se o request.body.usuario_id for enviado, verifique se corresponde ao autenticado.
-  // if (request.body.usuario_id && request.body.usuario_id !== usuario_id_autenticado) {
-  //   return reply.status(403).send({ error: 'Proibido: O ID de usuário no corpo da requisição não corresponde ao usuário autenticado.' });
-  // }
-
   try {
     // 1. Verificar se a sala está disponível
     const sala = await sql`SELECT disponivel FROM salas WHERE id = ${sala_id}`;
@@ -219,7 +214,6 @@ server.get('/api/reservas/usuario/:usuario_id', async (request, reply) => {
 });
 
 // POST: Logout
-
 server.post('/logout', { preHandler: [authenticate] }, async (request, reply) => {
   // O userId já está anexado ao request pelo `authenticate` preHandler
   const userIdToLogout = request.userId;

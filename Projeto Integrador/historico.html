@@ -15,7 +15,7 @@
             
             <li><a href="historico.html">Minhas Reservas</a></li>
             <li><a href="cancelar.html">Cancelar Reservas</a></li>
-            <li class="login"><a href="login.html">Sair</a></li>
+            <li class="login"><a href="loggedin.html">Área do Usuário</a></li>
         </ul>
     </nav>
 
@@ -110,12 +110,7 @@
           <td>${formatarData(reserva.data)}</td>
           <td>${formatarHorario(reserva.horario)}</td>
           <td><span style="color: ${statusColor}; font-weight: bold;">${reserva.status || 'Pendente'}</span></td>
-          <td>
-            <button onclick="cancelarReserva('${reserva.id}')" 
-                    style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-              Cancelar
-            </button>
-          </td>
+          
         `;
         tbody.appendChild(novaLinha);
       });

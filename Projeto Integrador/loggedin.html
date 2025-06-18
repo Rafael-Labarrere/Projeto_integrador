@@ -5,21 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Logado - UniCEUB</title>
     <link rel="stylesheet" href="estilo.css">
-    <script defer src="script.js"></script>
-</head>
+    </head>
 <body>
     <nav>
         <div class="logo">UniCEUB</div>
         <ul class="menu">
             <li><a href="inicio.html">Início</a></li>
             <li><a href="consultar_salas.html">Consultar Salas</a></li>
-            <li><a href="reservar.html">Fazer Reserva</a></li>
+            
             <li><a href="historico.html">Minhas Reservas</a></li>
             <li><a href="cancelar.html">Cancelar Reservas</a></li>
-            <li class="login"><a href="login.html">Sair</a></li>
         </ul>
 
-        <!-- Menu Hambúrguer para Usuário Logado (oculto por padrão) -->
         <div class="user-menu" id="user-menu" style="display: none;">
             <button class="menu-btn" id="menu-btn">&#9776;</button>
             <ul class="dropdown-menu" id="dropdown-menu">
@@ -27,8 +24,7 @@
                 <li><a href="historico.html">Minhas Reservas</a></li>
                 <li><a href="mensagens.html">Mensagens</a></li>
                 <li><a href="configuracoes.html">Configurações</a></li>
-                <li><a href="inicio.html" id="logout-link">Sair</a></li>
-            </ul>
+                <li><a href="inicio.html" id="logout-link-dropdown">Sair</a></li> </ul>
         </div>
     </nav>
 
@@ -52,11 +48,14 @@
                     <a href="consultar_salas.html" style="background-color: #003366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
                         Consultar Salas
                     </a>
-                    <a href="reservar.html" style="background-color: #004080; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
-                        Fazer Reserva
+                    <a href="cancelar.html" style="background-color: #004080; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
+                        Cancelar reservas
                     </a>
                     <a href="historico.html" style="background-color: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
                         Minhas Reservas
+                    </a>
+                    <a href="#" id="logout-link-main" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s ease;">
+                        Sair da minha conta
                     </a>
                 </div>
             </div>
@@ -67,61 +66,61 @@
         <p>&copy; 2025 UniCEUB - Todos os direitos reservados.</p>
     </footer>
 
-    <script>
-        // Script para alternar entre menu normal e menu de usuário logado
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module" src="auth.js"></script> <script type="module">
+        import { verificarAutenticacao, performLogout } from './auth.js'; // Importe a nova função performLogout
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await verificarAutenticacao();
+            // atualizarEstadoLogin(); // Se esta função não existe no auth.js, remova-a ou implemente-a
+
+            // Lógica para mostrar/ocultar menu do usuário logado
             const userMenu = document.getElementById('user-menu');
+            const normalMenu = document.querySelector('.menu');
+            const loginItem = document.querySelector('.login'); // Pode não existir se 'Sair' for o único link
+
+            // Verifique se o usuário está logado para exibir o user-menu
+            const usuarioLogado = localStorage.getItem('usuarioLogado');
+            if (usuarioLogado && JSON.parse(usuarioLogado).token) {
+                if (normalMenu) normalMenu.style.display = 'none'; // Oculta o menu normal
+                if (loginItem) loginItem.style.display = 'none'; // Oculta o item de login/sair original
+                userMenu.style.display = 'block'; // Mostra o menu do usuário
+            } else {
+                 if (normalMenu) normalMenu.style.display = 'flex'; // Garante que o menu normal esteja visível se não logado
+                 if (userMenu) userMenu.style.display = 'none'; // Oculta o menu do usuário se não logado
+            }
+
             const menuBtn = document.getElementById('menu-btn');
             const dropdownMenu = document.getElementById('dropdown-menu');
             
-            // Função para mostrar menu de usuário logado (pode ser chamada quando usuário faz login)
-            function showUserMenu() {
-                const normalMenu = document.querySelector('.menu');
-                const loginItem = document.querySelector('.login');
-                
-                if (normalMenu && loginItem) {
-                    loginItem.style.display = 'none';
-                    userMenu.style.display = 'block';
-                }
-            }
-            
-            // Toggle do menu dropdown
             if (menuBtn && dropdownMenu) {
                 menuBtn.addEventListener('click', function() {
                     dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
                 });
                 
-                // Fechar menu ao clicar fora
                 document.addEventListener('click', function(event) {
-                    if (!userMenu.contains(event.target)) {
+                    if (!userMenu.contains(event.target) && !menuBtn.contains(event.target)) {
                         dropdownMenu.style.display = 'none';
                     }
                 });
             }
-            
-            // Logout
-            const logoutLink = document.getElementById('logout-link');
-            if (logoutLink) {
-                logoutLink.addEventListener('click', function() {
-                    // Aqui você pode adicionar lógica de logout
-                    alert('Logout realizado com sucesso!');
+
+            // Atribua o evento de clique para o logout
+            const logoutLinkDropdown = document.getElementById('logout-link-dropdown');
+            if (logoutLinkDropdown) {
+                logoutLinkDropdown.addEventListener('click', async (e) => {
+                    e.preventDefault(); // Evita a navegação imediata
+                    await performLogout();
+                });
+            }
+
+            const logoutLinkMain = document.getElementById('logout-link-main');
+            if (logoutLinkMain) {
+                logoutLinkMain.addEventListener('click', async (e) => {
+                    e.preventDefault(); // Evita a navegação imediata
+                    await performLogout();
                 });
             }
         });
-        import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            await verificarAutenticacao();
-            atualizarEstadoLogin();
-            
-        
-        });
-        import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            await verificarAutenticacao();
-            atualizarEstadoLogin();
-  });
-</script>
+    </script>
 </body>
 </html>
