@@ -1,43 +1,42 @@
 // auth.js
-const API_URL = 'https://projeto-integrador-znob.onrender.com'; // A URL base do seu backend
+const API_URL = 'https://projeto-integrador-znob.onrender.com';
 
 export async function verificarAutenticacao() {
-  const usuario = JSON.parse(localStorage.getItem('usuarioLogado')); 
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado')); 
 
-  if (!usuario || !usuario.id || !usuario.token) { // Verifique se o token existe também
-    if (!window.location.href.includes('login.html') && !window.location.href.includes('cadastro.html')) { // Adicione 'cadastro.html' se existir
-      alert('Você precisa fazer login para acessar esta página');
-      window.location.href = 'login.html';
+    if (!usuario || !usuario.id || !usuario.token) {
+        if (!window.location.href.includes('login.html') && !window.location.href.includes('cadastro.html')) {
+            alert('Você precisa fazer login para acessar esta página');
+            window.location.href = 'login.html';
+        }
+        return false;
     }
-    return false;
-  }
-  
-  try {
-    const response = await fetch(`${API_URL}/verificar-sessao`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${usuario.token}`
-      }
-    });
     
-    if (!response.ok) {
-      localStorage.removeItem('usuarioLogado');
-      // Não recarregue a página se for redirecionar para o login
-      if (!window.location.href.includes('login.html')) {
-          window.location.href = 'login.html'; // Redireciona para login se a sessão for inválida
-      }
-      return false;
+    try {
+        const response = await fetch(`${API_URL}/verificar-sessao`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${usuario.token}`
+            }
+        });
+        
+        if (!response.ok) {
+            localStorage.removeItem('usuarioLogado');
+            if (!window.location.href.includes('login.html')) {
+                window.location.href = 'login.html';
+            }
+            return false;
+        }
+    } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+        localStorage.removeItem('usuarioLogado');
+        if (!window.location.href.includes('login.html')) {
+            window.location.href = 'login.html';
+        }
+        return false;
     }
-  } catch (error) {
-    console.error('Erro ao verificar sessão:', error);
-    localStorage.removeItem('usuarioLogado'); // Limpa em caso de erro de rede também
-    if (!window.location.href.includes('login.html')) {
-        window.location.href = 'login.html';
-    }
-    return false;
-  }
-  
-  return true;
+    
+    return true;
 }
 
 // Nova função para realizar o logout
@@ -45,7 +44,6 @@ export async function performLogout() {
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
 
     if (!usuario || !usuario.id || !usuario.token) {
-        // Se não há usuário logado ou token, apenas limpa e redireciona
         localStorage.removeItem('usuarioLogado');
         alert('Logout realizado com sucesso!');
         window.location.href = 'login.html';
@@ -59,7 +57,8 @@ export async function performLogout() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${usuario.token}` // Envia o token para invalidar no backend
             },
-            body: JSON.stringify({ usuario_id: usuario.id }) // Envia o ID do usuário para o backend
+            // REMOVIDO: body: JSON.stringify({ usuario_id: usuario.id })
+            // O backend já obtém o userId do token JWT
         });
 
         if (response.ok) {
@@ -74,8 +73,7 @@ export async function performLogout() {
         alert('Erro de conexão ao tentar fazer logout.');
         console.error('Erro de rede/conexão ao fazer logout:', error);
     } finally {
-        // Sempre remove o token do localStorage, mesmo que o backend falhe
         localStorage.removeItem('usuarioLogado');
-        window.location.href = 'login.html'; // Redireciona para a página de login
+        window.location.href = 'login.html';
     }
 }
