@@ -1,6 +1,23 @@
 // auth.js
 const API_URL = 'https://projeto-integrador-znob.onrender.com'; // A URL base do seu backend
 
+export function atualizarEstadoLogin() {
+    const usuarioLogado = localStorage.getItem('usuarioLogado');
+    const loginMenuItem = document.querySelector('nav .menu .login a'); // Seleciona o link "Área do Usuário" ou "Login"
+
+    if (loginMenuItem) {
+        if (usuarioLogado) {
+            // Se o usuário está logado, muda o texto para 'Área do Usuário'
+            loginMenuItem.textContent = 'Área do Usuário';
+            loginMenuItem.href = 'loggedin.html'; // Link para a página de área do usuário
+        } else {
+            // Se o usuário não está logado, muda o texto para 'Login'
+            loginMenuItem.textContent = 'Login';
+            loginMenuItem.href = 'login.html'; // Link para a página de login
+        }
+    }
+}
+
 export async function verificarAutenticacao() {
   const usuario = JSON.parse(localStorage.getItem('usuarioLogado')); 
 

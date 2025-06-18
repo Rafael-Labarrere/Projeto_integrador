@@ -43,8 +43,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Reservas serão inseridas aqui via JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
@@ -54,122 +53,154 @@
         <p>&copy; 2025 UniCEUB - Todos os direitos reservados</p>
     </footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
+    <script type="module">
+        // Importa as funções de autenticação
+        import { verificarAutenticacao, atualizarEstadoLogin } from './auth.js';
+
+        // Garante que o DOM está completamente carregado antes de executar o script
+        document.addEventListener("DOMContentLoaded", async () => {
+            console.log("DOMContentLoaded acionado."); // NOVO LOG
+            await verificarAutenticacao();
+            atualizarEstadoLogin();
+            
             carregarReservas();
+
+            document.addEventListener('click', async (e) => {
+                if (e.target && e.target.classList.contains('cancelar-btn')) {
+                    const reservaId = e.target.dataset.id;
+                    console.log(`Botão Cancelar clicado para reserva ID: ${reservaId}`); // NOVO LOG
+
+                    if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
+                        try {
+                            const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/${reservaId}`, {
+                                method: 'DELETE'
+                            });
+
+                            const resultado = await response.json();
+
+                            if (response.ok) {
+                                alert("Reserva cancelada com sucesso!");
+                                carregarReservas();
+                            } else {
+                                alert("Erro ao cancelar reserva: " + (resultado.erro || 'Erro desconhecido.'));
+                            }
+                        } catch (error) {
+                            alert("Erro ao conectar com o servidor ou processar resposta.");
+                            console.error("Erro no cancelamento da reserva:", error);
+                        }
+                    }
+                }
+            });
         });
 
         async function carregarReservas() {
-  const loading = document.getElementById('loading');
-  const tbody = document.querySelector('#tabela-reservas tbody');
-  
-  loading.style.display = 'block';
-  tbody.innerHTML = '';
+            console.log("Função carregarReservas() iniciada."); // NOVO LOG
+            const loading = document.getElementById('loading');
+            const tbody = document.querySelector('#tabela-reservas tbody');
+            
+            // Certifique-se de que `tbody` foi encontrado.
+            if (!tbody) {
+                console.error("Erro: Elemento tbody da tabela de reservas não encontrado!"); // NOVO LOG
+                return; 
+            }
 
-  const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-  if (!usuario || !usuario.id) {
-    loading.style.display = 'none';
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
-          Você não está logado. <a href="login.html">Faça login</a>.
-        </td>
-      </tr>
-    `;
-    return;
-  }
+            loading.style.display = 'block';
+            tbody.innerHTML = '';
 
-  try {
-    const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/usuario/${usuario.id}`);
-    if (!response.ok) throw new Error('Erro ao carregar reservas');
+            const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+            console.log("Dados do usuário do localStorage:", usuario); // NOVO LOG
 
-    const reservas = await response.json();
+            if (!usuario || !usuario.id) {
+                console.log("Usuário não logado ou ID ausente."); // NOVO LOG
+                loading.style.display = 'none';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+                            Você não está logado. <a href="login.html">Faça login</a>.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
 
-    if (reservas.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
-            <p>Nenhuma reserva encontrada.</p>
-            <p style="margin-top: 10px;">
-              <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
-                Fazer uma reserva →
-              </a>
-            </p>
-          </td>
-        </tr>
-      `;
-    } else {
-      reservas.forEach(reserva => {
-        const novaLinha = document.createElement('tr');
-        const statusColor = getStatusColor(reserva.status || 'Pendente');
-        
-        novaLinha.innerHTML = `
-        <td>${reserva.nome_reservante}</td>
-        <td>${reserva.ra}</td>
-        <td>${reserva.sala_nome} (${reserva.bloco}, ${reserva.tipo})</td>
-        <td>${formatarData(reserva.data_reserva)}</td>
-        <td>${formatarHorario(reserva.horario)}</td>
-        <td>
-            <button class="cancelar-btn" data-id="${reserva.id}" style="background-color: ${statusColor}; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
-            Cancelar
-            </button>
-        </td>
-        `;
+            try {
+                console.log(`Fazendo fetch para: https://projeto-integrador-znob.onrender.com/api/reservas/usuario/${usuario.id}`); // NOVO LOG
+                const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/usuario/${usuario.id}`);
+                
+                if (!response.ok) {
+                    console.error("Resposta da API não OK:", response.status, response.statusText); // NOVO LOG
+                    throw new Error('Erro ao carregar reservas');
+                }
 
-        // Adiciona o botão na tabela
-        tbody.appendChild(novaLinha);
-      });
-    }
-  } catch (e) {
-    console.error("Erro ao carregar reservas:", e);
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
-          Erro ao carregar reservas. Tente recarregar a página.
-        </td>
-      </tr>
-    `;
-  } finally {
-    loading.style.display = 'none';
-  }
-}
+                const reservas = await response.json();
+                console.log("Reservas recebidas da API:", reservas); // NOVO LOG
 
-        function formatarData(data) {
-    if (!data) return '';
-    try {
-        const apenasData = data.split('T')[0]; // "2025-06-17T00:00:00.000Z" → "2025-06-17"
-        const [ano, mes, dia] = apenasData.split('-');
-        return `${dia}/${mes}/${ano}`;
-    } catch (e) {
-        return data;
-    }
-}
-document.addEventListener('click', async (e) => {
-  if (e.target && e.target.classList.contains('cancelar-btn')) {
-    const reservaId = e.target.dataset.id;
+                if (reservas.length === 0) {
+                    console.log("Nenhuma reserva encontrada. Exibindo mensagem."); // NOVO LOG
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                                <p>Nenhuma reserva encontrada.</p>
+                                <p style="margin-top: 10px;">
+                                    <a href="reservar.html" style="color: #003366; text-decoration: none; font-weight: bold;">
+                                        Fazer uma reserva →
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    console.log(`Renderizando ${reservas.length} reservas.`); // NOVO LOG
+                    reservas.forEach(reserva => {
+                        // NOVO LOG: Loga cada objeto de reserva antes de tentar renderizá-lo
+                        console.log("Processando reserva:", reserva); 
 
-    if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
-      try {
-        const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/${reservaId}`, {
-          method: 'DELETE'
-        });
-
-        const resultado = await response.json();
-
-        if (response.ok) {
-          alert("Reserva cancelada com sucesso!");
-          carregarReservas(); // Atualiza a tabela após cancelamento
-        } else {
-          alert("Erro ao cancelar reserva: " + resultado.erro);
+                        const novaLinha = document.createElement('tr');
+                        const statusColor = getStatusColor(reserva.status || 'Pendente'); 
+                        
+                        novaLinha.innerHTML = `
+                            <td>${reserva.nome_reservante}</td>
+                            <td>${reserva.ra}</td>
+                            <td>${reserva.sala_nome} (${formatarTipoEBloco(reserva.tipo, reserva.bloco)})</td>
+                            <td>${formatarData(reserva.data_reserva)}</td>
+                            <td>${formatarHorario(reserva.horario)}</td>
+                            <td>
+                                <button class="cancelar-btn" data-id="${reserva.id}" style="background-color: ${statusColor}; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+                                    Cancelar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(novaLinha);
+                        console.log("Linha adicionada para reserva:", reserva.id); // NOVO LOG
+                    });
+                }
+            } catch (e) {
+                console.error("Erro ao carregar reservas (catch block):", e); // NOVO LOG
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px; color: #dc3545;">
+                            Erro ao carregar reservas. Tente recarregar a página.
+                        </td>
+                    </tr>
+                `;
+            } finally {
+                loading.style.display = 'none';
+                console.log("carregarReservas() finalizada."); // NOVO LOG
+            }
         }
-      } catch (error) {
-        alert("Erro ao conectar com o servidor.");
-        console.error(error);
-      }
-    }
-  }
-});
 
+        // Funções auxiliares para formatação de dados (sem alterações)
+        function formatarData(data) {
+            if (!data) return '';
+            try {
+                const apenasData = data.split('T')[0];
+                const [ano, mes, dia] = apenasData.split('-');
+                return `${dia}/${mes}/${ano}`;
+            } catch (e) {
+                console.error("Erro em formatarData:", e, "Dados:", data); // NOVO LOG
+                return data;
+            }
+        }
 
         function formatarHorario(horario) {
             if (!horario) return '';
@@ -177,6 +208,7 @@ document.addEventListener('click', async (e) => {
                 const [hora, minuto] = horario.split(':');
                 return `${hora}:${minuto}`;
             } catch (e) {
+                console.error("Erro em formatarHorario:", e, "Dados:", horario); // NOVO LOG
                 return horario;
             }
         }
@@ -205,53 +237,6 @@ document.addEventListener('click', async (e) => {
                     return '#ffc107';
             }
         }
-        document.addEventListener('click', async (e) => {
-      if (e.target && e.target.classList.contains('cancelar-btn')) {
-        const reservaId = e.target.dataset.id;
-
-        if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
-          try {
-            const userDataString = localStorage.getItem('usuarioLogado');
-            if (!userDataString) {
-                alert('Usuário não autenticado. Faça login novamente.');
-                window.location.href = 'login.html';
-                return;
-            }
-            const userData = JSON.parse(userDataString);
-            const token = userData.token;
-
-            if (!token) {
-                alert('Token de autenticação não encontrado. Faça login novamente.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/${reservaId}`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}` // ADD THIS LINE
-              }
-            });
-
-            const resultado = await response.json(); // Always try to parse JSON
-
-            if (response.ok) {
-              alert("Reserva cancelada com sucesso!");
-              carregarReservas(); // Atualiza a tabela após cancelamento
-            } else {
-              // Handle specific server errors
-              alert("Erro ao cancelar reserva: " + (resultado.erro || 'Erro desconhecido.'));
-            }
-          } catch (error) {
-            alert("Erro ao conectar com o servidor ou processar resposta."); // More specific message
-            console.error("Erro no cancelamento da reserva:", error); // Log the full error
-          }
-        }
-      }
-    });
-
     </script>
-
-
 </body>
 </html>

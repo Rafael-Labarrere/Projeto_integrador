@@ -231,29 +231,36 @@ server.post('/logout', { preHandler: [authenticate] }, async (request, reply) =>
   }
 });
 
-
 // DELETE: Cancelar reserva
-server.delete('/api/reservas/:id', { preHandler: [authenticate] }, async (request, reply) => { // ADDED PREHANDLER
+server.delete('/api/reservas/:id', async (request, reply) => { // REMOVIDO: preHandler: [authenticate]
   const { id } = request.params;
-  const userIdToLogout = request.userId; // User ID from authenticated token
+  // REMOVIDO: const userIdToLogout = request.userId; // Este não será mais anexado
+
+  console.log(`[DELETE /api/reservas/${id}] Request received for reservation ID: ${id}`);
+  // REMOVIDO: console.log(`[DELETE /api/reservas/${id}] Authenticated User ID: ${userIdToLogout}`);
 
   try {
-    // Obter a reserva para pegar o sala_id e o usuario_id
+    // Obter a reserva para pegar o sala_id e o usuario_id (ainda útil para atualizar a sala)
     const reserva = await sql`SELECT sala_id, usuario_id FROM reservas WHERE id = ${id}`;
+    console.log(`[DELETE /api/reservas/${id}] Fetched reservation:`, reserva);
+
     if (reserva.length === 0) {
+      console.log(`[DELETE /api/reservas/${id}] Reservation not found.`);
       return reply.code(404).send({ erro: 'Reserva não encontrada' });
     }
 
     const salaId = reserva[0].sala_id;
-    const reservaOwnerId = reserva[0].usuario_id;
+    // const reservaOwnerId = reserva[0].usuario_id; // Ainda pode ser útil para logs ou futuras implementações
 
-    // **Security Check:** Ensure the authenticated user owns this reservation
-    if (reservaOwnerId !== userIdToLogout) {
-        return reply.status(403).send({ erro: 'Você não tem permissão para cancelar esta reserva.' });
-    }
+    // REMOVIDO: Security Check: Ensure the authenticated user owns this reservation
+    // if (reservaOwnerId !== userIdToLogout) {
+    //     console.log(`[DELETE /api/reservas/${id}] Authorization failed: User ${userIdToLogout} tried to cancel reservation of ${reservaOwnerId}`);
+    //     return reply.status(403).send({ erro: 'Você não tem permissão para cancelar esta reserva.' });
+    // }
 
     // Deletar a reserva
     await sql`DELETE FROM reservas WHERE id = ${id}`;
+    console.log(`[DELETE /api/reservas/${id}] Reservation deleted.`);
 
     // Atualizar disponibilidade da sala
     await sql`
@@ -261,14 +268,16 @@ server.delete('/api/reservas/:id', { preHandler: [authenticate] }, async (reques
       SET disponivel = true
       WHERE id = ${salaId}
     `;
+    console.log(`[DELETE /api/reservas/${id}] Sala status updated.`);
 
     reply.send({ mensagem: 'Reserva cancelada com sucesso.' });
+    console.log(`[DELETE /api/reservas/${id}] Success response sent.`);
+
   } catch (error) {
-    console.error(error);
+    console.error(`[DELETE /api/reservas/${id}] Error during cancellation:`, error);
     reply.code(500).send({ erro: 'Erro ao cancelar reserva.' });
   }
 });
-
 
 // Iniciar servidor
 server.listen({
