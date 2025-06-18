@@ -205,6 +205,50 @@ document.addEventListener('click', async (e) => {
                     return '#ffc107';
             }
         }
+        document.addEventListener('click', async (e) => {
+      if (e.target && e.target.classList.contains('cancelar-btn')) {
+        const reservaId = e.target.dataset.id;
+
+        if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
+          try {
+            const userDataString = localStorage.getItem('usuarioLogado');
+            if (!userDataString) {
+                alert('Usuário não autenticado. Faça login novamente.');
+                window.location.href = 'login.html';
+                return;
+            }
+            const userData = JSON.parse(userDataString);
+            const token = userData.token;
+
+            if (!token) {
+                alert('Token de autenticação não encontrado. Faça login novamente.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const response = await fetch(`https://projeto-integrador-znob.onrender.com/api/reservas/${reservaId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}` // ADD THIS LINE
+              }
+            });
+
+            const resultado = await response.json(); // Always try to parse JSON
+
+            if (response.ok) {
+              alert("Reserva cancelada com sucesso!");
+              carregarReservas(); // Atualiza a tabela após cancelamento
+            } else {
+              // Handle specific server errors
+              alert("Erro ao cancelar reserva: " + (resultado.erro || 'Erro desconhecido.'));
+            }
+          } catch (error) {
+            alert("Erro ao conectar com o servidor ou processar resposta."); // More specific message
+            console.error("Erro no cancelamento da reserva:", error); // Log the full error
+          }
+        }
+      }
+    });
 
     </script>
    <script type="module">
