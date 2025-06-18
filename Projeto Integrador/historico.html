@@ -130,14 +130,16 @@
 }
 
         function formatarData(data) {
-            if (!data) return '';
-            try {
-                const [ano, mes, dia] = data.split('-');
-                return `${dia}/${mes}/${ano}`;
-            } catch (e) {
-                return data;
-            }
-        }
+    if (!data) return '';
+    try {
+        const apenasData = data.split('T')[0]; // "2025-06-17T00:00:00.000Z" → "2025-06-17"
+        const [ano, mes, dia] = apenasData.split('-');
+        return `${dia}/${mes}/${ano}`;
+    } catch (e) {
+        return data;
+    }
+}
+
 
         function formatarHorario(horario) {
             if (!horario) return '';

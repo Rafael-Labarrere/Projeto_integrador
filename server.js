@@ -231,16 +231,6 @@ server.post('/logout', { preHandler: [authenticate] }, async (request, reply) =>
   }
 });
 
-server.patch('/api/reservas/:id/cancelar', async (request, reply) => {
-  const { id } = request.params;
-  try {
-    await sql`UPDATE reservas SET status = 'Cancelado' WHERE id = ${id}`;
-    reply.send({ success: true, message: 'Reserva cancelada' });
-  } catch (err) {
-    reply.status(500).send({ error: 'Erro ao cancelar reserva' });
-  }
-});
-
 
 // Iniciar servidor
 server.listen({
