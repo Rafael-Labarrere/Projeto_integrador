@@ -231,7 +231,7 @@ server.post('/logout', { preHandler: [authenticate] }, async (request, reply) =>
   }
 });
 
-sercer.patch('/api/reservas/:id/cancelar', async (request, reply) => {
+server.patch('/api/reservas/:id/cancelar', async (request, reply) => {
   const { id } = request.params;
   try {
     await sql`UPDATE reservas SET status = 'Cancelado' WHERE id = ${id}`;
