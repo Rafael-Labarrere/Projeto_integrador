@@ -231,6 +231,40 @@ server.post('/logout', { preHandler: [authenticate] }, async (request, reply) =>
   }
 });
 
+
+// PATCH: Cancelar uma reserva existente
+server.patch('/api/reservas/:id/cancelar', { preHandler: [authenticate] }, async (request, reply) => {
+  const { id } = request.params;
+  const usuario_id = request.userId;
+
+  try {
+    // Verifica se a reserva pertence ao usuário logado
+    const reserva = await sql`
+      SELECT * FROM reservas WHERE id = ${id} AND usuario_id = ${usuario_id}
+    `;
+    
+    if (reserva.length === 0) {
+      return reply.status(403).send({ error: 'Reserva não encontrada ou acesso negado' });
+    }
+
+    // Atualiza o status da reserva
+    await sql`
+      UPDATE reservas SET status = 'Cancelado' WHERE id = ${id}
+    `;
+
+    // (Opcional) liberar a sala novamente
+    await sql`
+      UPDATE salas SET disponivel = true WHERE id = ${reserva[0].sala_id}
+    `;
+
+    reply.send({ success: true, message: 'Reserva cancelada com sucesso' });
+  } catch (err) {
+    console.error(err);
+    reply.status(500).send({ error: 'Erro ao cancelar reserva' });
+  }
+});
+
+
 // Iniciar servidor
 server.listen({
   host: '0.0.0.0',
