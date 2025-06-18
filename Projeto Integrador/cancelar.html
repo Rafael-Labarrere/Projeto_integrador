@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cancelar Reservas - UniCEUB</title>
     <link rel="stylesheet" href="estilo.css">
-    </head>
+</head>
 <body>
     <nav>
         <div class="logo">UniCEUB</div>
@@ -22,7 +22,7 @@
         <section class="intro">
             <h1>UniCEUB</h1>
             <h3>Bem-vindo ao Sistema de Reserva de Salas do UniCEUB!</h3>
-            <p>Este sistema foi desenvolvido para facilitar a reserva de salas dentro da universidade...</p>
+            <p>Este sistema foi desenvolvido para facilitar o cancelamento de suas reservas.</p>
         </section>
 
         <section class="content">
@@ -54,20 +54,22 @@
     </footer>
 
     <script type="module">
-        import { verificarAutenticacao } from './auth.js'; // Importe apenas o necessário
+        import { verificarAutenticacao } from './auth.js'; 
 
-        // Defina a URL base da API
+        // A URL base da API é definida no auth.js, e importamos.
+        // No entanto, para evitar problemas de escopo ou para clareza em cada arquivo,
+        // podemos definir a base aqui ou obter do auth.js se exportado (não está exportado).
+        // Vamos manter a definição explícita aqui, consistente com auth.js
         const API_URL = 'https://projeto-integrador-znob.onrender.com';
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Garante que o usuário esteja logado antes de tentar carregar reservas
             const autenticado = await verificarAutenticacao();
             if (autenticado) {
                 carregarReservasParaCancelar();
             } else {
-                // Se não autenticado, verificarAutenticacao já deve ter redirecionado
-                // Mas para garantir que a tabela não fique vazia, adicione uma mensagem
-                document.querySelector('#tabela-cancelar tbody').innerHTML = `<tr><td colspan="5">Você não está logado. Por favor, <a href="login.html">faça login</a>.</td></tr>`;
+                // verificarAutenticacao já deve ter redirecionado, mas para garantir uma mensagem clara:
+                document.querySelector('#tabela-cancelar tbody').innerHTML = `<tr><td colspan="5">Você precisa fazer login para ver e cancelar suas reservas.</td></tr>`;
+                document.getElementById('loading').style.display = 'none';
             }
         });
 
@@ -76,8 +78,9 @@
             const tbody = document.querySelector('#tabela-cancelar tbody');
             const loading = document.getElementById('loading');
 
-            if (!usuario || !usuario.id || !usuario.token) {
+            if (!usuario || !usuario.id) { // Não precisa verificar o token aqui se o backend não exige
                 tbody.innerHTML = `<tr><td colspan="5">Você não está logado ou sua sessão expirou. <a href="login.html">Faça login</a></td></tr>`;
+                loading.style.display = 'none';
                 return;
             }
 
@@ -85,22 +88,18 @@
             tbody.innerHTML = ''; // Limpa a tabela antes de carregar novas reservas
 
             try {
-                const response = await fetch(`${API_URL}/api/reservas/usuario/${usuario.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${usuario.token}`
-                    }
-                });
+                // ASSUMINDO QUE SEU SERVER.JS NÃO EXIGE AUTORIZAÇÃO PARA ESTA ROTA GET
+                const response = await fetch(`${API_URL}/api/reservas/usuario/${usuario.id}`); 
                 
                 if (!response.ok) {
-                    const errorMsg = await response.json();
-                    throw new Error(errorMsg.error || 'Erro ao carregar reservas');
+                    const errorMsg = await response.json(); // Tenta ler a mensagem de erro
+                    throw new Error(errorMsg.error || `Erro ao carregar reservas: Status ${response.status}`);
                 }
 
                 const reservas = await response.json();
 
                 if (reservas.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5">Nenhuma reserva encontrada.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5">Nenhuma reserva encontrada para cancelar.</td></tr>`;
                 } else {
                     reservas.forEach(reserva => {
                         const tr = document.createElement('tr');
@@ -133,26 +132,25 @@
             }
         }
 
+        // Funções de formatação e statusColor (iguais às anteriores)
         function formatarData(data) {
             if (!data) return '';
-            // Ajuste aqui se a data vier de uma forma diferente (ex: "2024-06-18T03:00:00.000Z")
-            // Pode precisar de new Date(data).toLocaleDateString('pt-BR')
             try {
+                // Adapte se o formato da sua data for diferente (e.g., 'YYYY-MM-DDTHH:mm:ss.sssZ')
                 const [ano, mes, dia] = data.split('-');
                 return `${dia}/${mes}/${ano}`;
             } catch {
-                return data; // Retorna original se falhar
+                return data; 
             }
         }
 
         function formatarHorario(horario) {
             if (!horario) return '';
-            // Ajuste aqui se o horário vier de uma forma diferente (ex: "10:00:00")
             try {
                 const [hora, minuto] = horario.split(':');
                 return `${hora}:${minuto}`;
             } catch {
-                return horario; // Retorna original se falhar
+                return horario;
             }
         }
 
@@ -160,22 +158,22 @@
             switch ((status || '').toLowerCase()) {
                 case 'confirmado':
                 case 'aprovado':
-                    return '#28a745'; // Verde
+                    return '#28a745'; 
                 case 'cancelado':
                 case 'rejeitado':
-                    return '#dc3545'; // Vermelho
+                    return '#dc3545'; 
                 case 'pendente':
                 default:
-                    return '#ffc107'; // Amarelo
+                    return '#ffc107'; 
             }
         }
 
-        // Função global para o botão de cancelar funcionar (precisa do window. para ser acessível do HTML)
         window.cancelarReserva = async function(idReserva) {
             const confirmar = confirm("Tem certeza que deseja cancelar esta reserva?");
             if (!confirmar) return;
 
             const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+            // Para o cancelamento, é crucial ter o token, pois a rota PATCH deve estar protegida
             if (!usuario || !usuario.token) {
                 alert('Sessão expirada. Faça login novamente.');
                 window.location.href = 'login.html';
@@ -187,7 +185,7 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${usuario.token}`
+                        'Authorization': `Bearer ${usuario.token}` // Envia o token aqui
                     }
                 });
 
